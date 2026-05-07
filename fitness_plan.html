@@ -517,6 +517,11 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
   </div>
 </div>
 
+<!-- Synced user data — written by sync.py, read by loadState() as fallback when localStorage is empty -->
+<script type="application/json" id="user-data">
+{}
+</script>
+
 <script>
 // ═══════════════════════════════════════
 //  CONSTANTS
@@ -965,32 +970,53 @@ function defaultState() {
   };
 }
 
+function loadEmbeddedData() {
+  try {
+    const el = document.getElementById('user-data');
+    if (!el) return null;
+    const txt = (el.textContent || '').trim();
+    if (!txt || txt === '{}') return null;
+    const parsed = JSON.parse(txt);
+    return (parsed && typeof parsed === 'object') ? parsed : null;
+  } catch(e) { return null; }
+}
+
+function migrateState(saved) {
+  S = saved;
+  if (!S.exerciseSettings) S.exerciseSettings = {};
+  for (const day of ['push','pull','legs']) {
+    if (!S.exerciseSettings[day]) {
+      S.exerciseSettings[day] = WORKOUTS[day].exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' }));
+    }
+  }
+  if (!S.customRecipes) S.customRecipes = [];
+  if (!S.customGroceryItems) S.customGroceryItems = [];
+  if (!S.mealLog) S.mealLog = {};
+  if (!S.recipeEdits) S.recipeEdits = {};
+  if (!S.mealPlanEdits) S.mealPlanEdits = {};
+  if (!S.exerciseNameEdits) S.exerciseNameEdits = {};
+  if (!S.workoutLog) S.workoutLog = {};
+  if (!S.groceryChecked) S.groceryChecked = {};
+  if (!S.selectedMeals) S.selectedMeals = RECIPES.map(r => r.id);
+  for (const day of ['push','pull','legs']) {
+    if (S.exerciseSettings[day]) {
+      S.exerciseSettings[day].forEach(e => { if (e.notes === undefined) e.notes = ''; });
+    }
+  }
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) { S = defaultState(); return; }
-    const saved = JSON.parse(raw);
-    if (!saved || saved.version !== 1) { S = defaultState(); return; }
-    S = saved;
-    // Backfill missing exerciseSettings for any day
-    for (const day of ['push','pull','legs']) {
-      if (!S.exerciseSettings || !S.exerciseSettings[day]) {
-        if (!S.exerciseSettings) S.exerciseSettings = {};
-        S.exerciseSettings[day] = WORKOUTS[day].exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight }));
-      }
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && saved.version === 1) { migrateState(saved); return; }
     }
-    if (!S.customRecipes) S.customRecipes = [];
-    if (!S.customGroceryItems) S.customGroceryItems = [];
-    if (!S.mealLog) S.mealLog = {};
-    if (!S.recipeEdits) S.recipeEdits = {};
-    if (!S.mealPlanEdits) S.mealPlanEdits = {};
-    if (!S.exerciseNameEdits) S.exerciseNameEdits = {};
-    // Backfill notes field on exerciseSettings
-    for (const day of ['push','pull','legs']) {
-      if (S.exerciseSettings && S.exerciseSettings[day]) {
-        S.exerciseSettings[day].forEach(e => { if (e.notes === undefined) e.notes = ''; });
-      }
-    }
+    // No localStorage — fall back to data baked into the HTML by sync.py.
+    // This is how edits made on another device flow in after `git pull`.
+    const embedded = loadEmbeddedData();
+    if (embedded && embedded.version === 1) { migrateState(embedded); return; }
+    S = defaultState();
   } catch(e) { S = defaultState(); }
 }
 
