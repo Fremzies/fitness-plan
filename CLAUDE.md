@@ -45,11 +45,15 @@ Self-contained HTML with `<style>` and `<script>` blocks. The JS is roughly orga
 
 The repo lives at `https://github.com/Fremzies/fitness-plan` (private, owner `Fremzies`). The user works from this on multiple devices and treats GitHub as the source of truth.
 
-- Make a clean commit for each meaningful change; descriptive messages focused on the *why*.
-- Push to `origin/main` after each commit so the user can pull from any device.
-- Don't batch unrelated changes.
+**Commit and push as you work — don't wait until the end of a task.** Every meaningful change must be committed locally and pushed to `origin/main` before moving on, so the user never loses progress and can revert any individual change cleanly.
+
+- Make a clean commit for each meaningful change; descriptive messages focused on the *why*, not just the *what*.
+- Push to `origin/main` immediately after each commit. Don't accumulate unpushed commits.
+- One logical change per commit. Don't batch unrelated edits, even if they're small.
+- If a single user request spans multiple logical changes (e.g., "add recipes + fix grocery dedup + remove a note"), make a separate commit for each.
 - The git identity is set locally in this repo (not globally) — don't change global git config.
 - `.gitignore` excludes `.DS_Store`, `.claude/settings.local.json`, and the `fitness_plan copy*.html` local snapshots.
+- Never force-push to `main`, never amend pushed commits, never skip hooks.
 
 ## Editing model — important
 
