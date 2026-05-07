@@ -57,6 +57,25 @@ The repo lives at `https://github.com/Fremzies/fitness-plan` (private, owner `Fr
 - `.gitignore` excludes `.DS_Store`, `.claude/settings.local.json`, and the `fitness_plan copy*.html` local snapshots.
 - Never force-push to `main`, never amend pushed commits, never skip hooks.
 
+## Backlog
+
+Things flagged by the user that aren't done yet. Pick these up when the user
+returns to them — don't proactively implement without confirmation.
+
+- **Reordering** — drag-and-drop to move meals between days (and likely
+  reorder recipes within a category, exercises within a workout). Will need
+  pointer-based DnD that works on iOS Safari (touch events, not just HTML5
+  DnD). Track ordering as an array of ids in `S.mealPlanOrder` etc., applied
+  during render. Don't break the existing `mealPlanEdits` row-key scheme.
+- **Cross-unit grocery aggregation** — current `computeGrocery()` merges only
+  when normalized name+unit match. Items like "Olive oil (2 tbsp)" + "Olive
+  oil (¼ cup)" stay split. The user wants them combined: convert all volumes
+  to a common base (e.g. ml or tbsp), sum, then display in the most natural
+  unit. Mass needs the same treatment. Counted items (`unit: 'x'` / `'-'`)
+  stay separate. Avoid converting across volume↔mass unless we add per-
+  ingredient density data — for now, mixed systems should display as
+  "X cups + Y oz" rather than incorrectly converting.
+
 ## Editing model — important
 
 - Built-in recipes (`RECIPES` const) and built-in workouts/meal-plan HTML are **never mutated at runtime**. User edits live in localStorage overrides (`recipeEdits`, `mealPlanEdits`, `exerciseNameEdits`).
