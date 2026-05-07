@@ -75,6 +75,14 @@ returns to them — don't proactively implement without confirmation.
   stay separate. Avoid converting across volume↔mass unless we add per-
   ingredient density data — for now, mixed systems should display as
   "X cups + Y oz" rather than incorrectly converting.
+- **Day-card → workout jump** — clicking a day card in the Schedule section
+  should open the matching workout `<details>` (push/pull/legs) and scroll
+  it into view. Each day card already has the workout class baked in
+  (`.day-card.push/.pull/.legs/.pottery/.rest`); rest/pottery cards should
+  no-op or just open Schedule. Add an `onclick` that finds
+  `#workout-<class>`, ensures the workouts section `<details>` is open,
+  then `scrollIntoView({ behavior: 'smooth' })`. Small change — but mind
+  that the workouts section itself is a `<details>` that may be collapsed.
 
 ## Editing model — important
 
