@@ -200,12 +200,25 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 .btn-secondary { flex: 1; background: #f3f0ff; color: #4c1d95; border: 1px solid #c4b5fd; border-radius: 10px; padding: .7rem; font-size: .95rem; font-weight: 700; cursor: pointer; }
 .btn-secondary:hover { background: #ede9fe; }
 .empty-recipes { font-size: .85rem; color: #9d8ec7; text-align: center; padding: 1rem; }
+.sync-bar { position: sticky; top: 0; z-index: 50; background: rgba(248,246,255,.95); backdrop-filter: blur(6px); padding: .5rem .85rem; margin: 0 -.85rem 1rem; border-bottom: 1px solid #ddd8f8; display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.sync-status { font-size: .78rem; color: #7c6faa; display: flex; align-items: center; gap: .35rem; }
+.sync-status.error { color: #b91c1c; }
+.sync-status.ok { color: #047857; }
+.sync-status.saving { color: #6d28d9; }
+.sync-btn { background: #4c1d95; color: #fff; border: none; border-radius: 8px; padding: .45rem .9rem; font-size: .82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.sync-btn:hover { background: #6d28d9; }
+.sync-btn:disabled { opacity: .55; cursor: wait; }
 </style>
 </head>
 <body>
 <h1>MY FITNESS PLAN</h1>
 <div class="subtitle">VEGETARIAN · BATCH PREP · PUSH / PULL / LEGS</div>
 <div class="container">
+
+<div class="sync-bar no-print">
+  <div class="sync-status" id="sync-status">⚪ unsaved edits stay on this device</div>
+  <button class="sync-btn" id="sync-btn" onclick="syncToGitHub(true)">💾 Save Changes</button>
+</div>
 
 <!-- OVERVIEW -->
 <div class="section">
@@ -1022,9 +1035,75 @@ function loadState() {
 
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e) {}
+  scheduleAutoSync();
 }
 
 function getToday() { return new Date().toISOString().slice(0,10); }
+
+// ═══════════════════════════════════════
+//  GITHUB SYNC
+// ═══════════════════════════════════════
+const SYNC_URL = 'http://localhost:7777/sync';
+let _autoSyncTimer = null;
+let _syncServerUp = null; // unknown / true / false — cached briefly to avoid spamming when offline
+
+function setSyncStatus(text, kind) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'sync-status' + (kind ? ' ' + kind : '');
+}
+
+// Trim ephemeral session state out of what we sync — those should stay per-device.
+function buildSyncPayload() {
+  return {
+    version: 1,
+    selectedMeals: S.selectedMeals,
+    customRecipes: S.customRecipes,
+    customGroceryItems: S.customGroceryItems,
+    recipeEdits: S.recipeEdits,
+    mealPlanEdits: S.mealPlanEdits,
+    exerciseSettings: S.exerciseSettings,
+    exerciseNameEdits: S.exerciseNameEdits
+  };
+}
+
+async function syncToGitHub(manual) {
+  const btn = document.getElementById('sync-btn');
+  if (btn) btn.disabled = true;
+  setSyncStatus('⏳ saving…', 'saving');
+  try {
+    const res = await fetch(SYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildSyncPayload())
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'sync failed');
+    _syncServerUp = true;
+    setSyncStatus(data.committed === false ? '✓ saved (no changes)' : '✓ saved & pushed to GitHub', 'ok');
+  } catch (e) {
+    _syncServerUp = false;
+    setTimeout(() => { _syncServerUp = null; }, 30000); // re-probe in 30s
+    if (manual) {
+      setSyncStatus('⚠️ helper not running — start sync.py', 'error');
+      alert('Sync failed: ' + e.message + '\n\nStart the helper:\n  cd ' + (location.pathname.split('/').slice(0,-1).join('/') || '.') + '\n  python3 sync.py');
+    } else {
+      setSyncStatus('⚪ unsaved (helper offline)', '');
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function scheduleAutoSync() {
+  // Don't bombard the helper if we know it's down. Probe will reset to null in 30s.
+  if (_syncServerUp === false) return;
+  if (_autoSyncTimer) clearTimeout(_autoSyncTimer);
+  setSyncStatus('… unsaved changes', '');
+  _autoSyncTimer = setTimeout(() => syncToGitHub(false), 3000);
+}
 
 // ═══════════════════════════════════════
 //  WORKOUTS
