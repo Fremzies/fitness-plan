@@ -17,12 +17,22 @@ import json
 import re
 import subprocess
 import sys
+import threading
+import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent
 HTML = REPO / "fitness_plan.html"
 PORT = 7777
+
+# Auto-exit after this many seconds without a heartbeat from any open tab.
+# The page sends a heartbeat every 60s while visible, so 10 min covers brief
+# screen-locks and tab-switching but reclaims the port when you stop working.
+IDLE_TIMEOUT = 10 * 60
+
+_last_heartbeat = time.time()
+_heartbeat_lock = threading.Lock()
 
 DATA_BLOCK_RE = re.compile(
     r'(<script type="application/json" id="user-data">)(.*?)(</script>)',
@@ -77,7 +87,16 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self) -> None:
-        if self.path.rstrip("/") != "/sync":
+        # Any POST counts as a sign of life — refresh the idle timer first.
+        global _last_heartbeat
+        with _heartbeat_lock:
+            _last_heartbeat = time.time()
+
+        path = self.path.rstrip("/").split("?", 1)[0]
+        if path == "/heartbeat":
+            self._reply(200, {"ok": True})
+            return
+        if path != "/sync":
             self.send_response(404)
             self.end_headers()
             return
@@ -107,6 +126,18 @@ class Handler(BaseHTTPRequestHandler):
         sys.stderr.write(f"[{self.log_date_time_string()}] {fmt % args}\n")
 
 
+def idle_watchdog(server: HTTPServer) -> None:
+    """Shut the server down once no heartbeat has arrived for IDLE_TIMEOUT seconds."""
+    while True:
+        time.sleep(30)
+        with _heartbeat_lock:
+            since = time.time() - _last_heartbeat
+        if since > IDLE_TIMEOUT:
+            print(f"\nidle for {int(since)}s (>{IDLE_TIMEOUT}s) — exiting cleanly.")
+            server.shutdown()
+            return
+
+
 def main() -> None:
     if not HTML.exists():
         print(f"error: {HTML} not found", file=sys.stderr)
@@ -114,13 +145,17 @@ def main() -> None:
     if not (REPO / ".git").exists():
         print(f"error: {REPO} is not a git repo", file=sys.stderr)
         sys.exit(1)
-    print(f"sync helper listening on http://localhost:{PORT}/sync")
+    server = HTTPServer(("localhost", PORT), Handler)
+    threading.Thread(target=idle_watchdog, args=(server,), daemon=True).start()
+    print(f"sync helper listening on http://localhost:{PORT}")
     print(f"watching: {HTML}")
+    print(f"will auto-exit after {IDLE_TIMEOUT // 60} min idle")
     print("press Ctrl-C to stop\n")
     try:
-        HTTPServer(("localhost", PORT), Handler).serve_forever()
+        server.serve_forever()
     except KeyboardInterrupt:
         print("\nstopped.")
+        server.shutdown()
 
 
 if __name__ == "__main__":

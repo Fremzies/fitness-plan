@@ -1105,6 +1105,26 @@ function scheduleAutoSync() {
   _autoSyncTimer = setTimeout(() => syncToGitHub(false), 3000);
 }
 
+// Heartbeat keeps sync.py alive while the tab is in use. The helper exits
+// itself after ~10 min without a heartbeat, so we don't leave a stale process
+// or a held port behind.
+let _heartbeatTimer = null;
+async function sendHeartbeat() {
+  if (document.visibilityState !== 'visible') return;
+  try {
+    await fetch('http://localhost:7777/heartbeat', { method: 'POST', keepalive: true });
+    if (_syncServerUp !== true) {
+      _syncServerUp = true;
+      setSyncStatus('✓ helper connected', 'ok');
+    }
+  } catch (e) { /* helper offline — sync UI handles this */ }
+}
+function startHeartbeat() {
+  sendHeartbeat();
+  if (_heartbeatTimer) clearInterval(_heartbeatTimer);
+  _heartbeatTimer = setInterval(sendHeartbeat, 60000);
+}
+
 // ═══════════════════════════════════════
 //  WORKOUTS
 // ═══════════════════════════════════════
@@ -1810,6 +1830,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initMealCheckboxes();
   applyMealEdits();
   initMealEditing();
+  startHeartbeat();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') sendHeartbeat();
+  });
 
   // Workout checkbox delegation
   document.addEventListener('change', e => {
