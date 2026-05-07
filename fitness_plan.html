@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Fitness Plan</title>
+<style>
+@media print {
+  body { background: white; }
+  .section { border: 1px solid #d1c7f0; break-inside: avoid; }
+  details > *:not(summary) { display: block !important; }
+  summary::after { display: none; }
+  .no-print, .meal-toggle, .icon-btn, .toolbar-btn, .add-item-btn, .add-ing-btn { display: none !important; }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; background: #f5f3ff; color: #1e1b3a;
+  font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6;
+  padding: 2rem 1rem 5rem;
+}
+h1 { text-align: center; font-size: 2rem; letter-spacing: .15em; color: #4c1d95; margin-bottom: .25rem; }
+.subtitle { text-align: center; font-size: .85rem; color: #7c6faa; margin-bottom: 2.5rem; letter-spacing: .08em; }
+.container { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+.section { background: #fff; border: 1px solid #ddd8f8; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(109,40,217,.06); }
+summary { padding: 1rem 1.25rem; cursor: pointer; font-size: 1rem; font-weight: 600; letter-spacing: .04em; display: flex; align-items: center; gap: .6rem; list-style: none; user-select: none; color: #1e1b3a; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '▸'; margin-left: auto; color: #a78bfa; transition: transform .2s; }
+details[open] summary::after { transform: rotate(90deg); }
+details[open] > summary { border-bottom: 1px solid #ece9fb; }
+.section-body { padding: 1.25rem; }
+.icon { font-size: 1.1rem; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+.card { background: #f8f6ff; border: 1px solid #ddd8f8; border-radius: 10px; padding: 1rem; }
+.card h3 { font-size: .78rem; letter-spacing: .1em; color: #6d28d9; margin-bottom: .6rem; text-transform: uppercase; }
+.card p, .card li { font-size: .88rem; color: #2d2560; }
+.card ul { padding-left: 1.1rem; }
+.card li { margin-bottom: .3rem; }
+.callout { border-left: 3px solid #f472b6; background: #fff0f8; border-radius: 0 8px 8px 0; padding: .8rem 1rem; margin-top: 1rem; font-size: .88rem; color: #2d2560; }
+.callout strong { color: #be185d; }
+.callout.coffee { border-left-color: #92400e; background: #fffbeb; }
+.callout.coffee strong { color: #92400e; }
+.habits { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.habit { background: #ede9fe; border: 1px solid #c4b5fd; border-radius: 20px; padding: .3rem .8rem; font-size: .82rem; color: #4c1d95; }
+.week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+@media (max-width: 620px) { .week-grid { grid-template-columns: repeat(4,1fr); } }
+.day-card { background: #f8f6ff; border: 1px solid #ddd8f8; border-radius: 10px; padding: .6rem .4rem; text-align: center; font-size: .78rem; color: #2d2560; }
+.day-card .day-name { font-weight: 700; font-size: .68rem; letter-spacing: .08em; color: #9d8ec7; margin-bottom: .25rem; text-transform: uppercase; }
+.day-type { font-weight: 700; font-size: .8rem; }
+.day-card.push { border-color: #93c5fd; } .day-card.push .day-type { color: #1d4ed8; }
+.day-card.pull { border-color: #fbcfe8; } .day-card.pull .day-type { color: #be185d; }
+.day-card.legs { border-color: #6ee7b7; } .day-card.legs .day-type { color: #065f46; }
+.day-card.pottery { border-color: #fcd34d; } .day-card.pottery .day-type { color: #92400e; }
+.day-card.rest { opacity: .55; }
+.schedule-note { font-size: .82rem; color: #7c6faa; margin-top: .75rem; }
+/* ── Workout interactive ── */
+.workout-block { margin-bottom: 1.75rem; }
+.workout-block:last-of-type { margin-bottom: 0; }
+.workout-title { font-size: .88rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .5rem; display: flex; align-items: center; gap: .5rem; }
+.workout-title.push { color: #1d4ed8; } .workout-title.pull { color: #be185d; } .workout-title.legs { color: #065f46; }
+.workout-title .duration { font-size: .75rem; font-weight: 400; color: #9d8ec7; margin-left: auto; }
+.progress-pill { font-size: .7rem; font-weight: 700; padding: .15rem .55rem; border-radius: 20px; background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; margin-left: .3rem; }
+.progress-pill.complete { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+.ex-header { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px; gap: .25rem; padding: .25rem .5rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: #9d8ec7; border-bottom: 1px solid #ece9fb; }
+.cb-row { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px; gap: .25rem; align-items: center; padding: .45rem .5rem; border-bottom: 1px solid #f3f0ff; cursor: pointer; transition: background .1s; min-height: 44px; }
+.cb-row:last-child { border-bottom: none; }
+.cb-row:active { background: #f3f0ff; }
+.cb-row.done { opacity: .45; }
+.cb-row.done .ex-name { text-decoration: line-through; }
+.cb-row input[type=checkbox] { width: 20px; height: 20px; accent-color: #6d28d9; cursor: pointer; flex-shrink: 0; }
+.ex-name { font-size: .85rem; color: #1e1b3a; line-height: 1.3; }
+.ex-cell { font-size: .82rem; color: #2d2560; text-align: center; padding: .2rem .25rem; border-radius: 5px; cursor: pointer; border: 1px solid transparent; transition: border-color .15s, background .15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ex-cell:hover, .ex-cell:focus { border-color: #c4b5fd; background: #f0eeff; outline: none; }
+.edit-input { width: 100%; font-size: .82rem; color: #1e1b3a; text-align: center; border: 1px solid #a78bfa; border-radius: 5px; padding: .2rem .25rem; background: #f8f6ff; outline: none; }
+.tag-new { display: inline-block; background: #d1fae5; color: #065f46; font-size: .62rem; font-weight: 700; padding: .1rem .35rem; border-radius: 4px; margin-left: .3rem; vertical-align: middle; }
+.warmup-note { font-size: .8rem; color: #7c6faa; margin-top: .65rem; padding: .45rem .75rem; border-left: 2px solid #c4b5fd; }
+.ex-notes { grid-column: 2 / -1; font-size: .76rem; color: #7c6faa; padding: .15rem .25rem .35rem; cursor: pointer; border-radius: 5px; line-height: 1.3; }
+.ex-notes:hover { background: #f3f0ff; }
+.ex-notes.empty { color: #c4b5fd; font-style: italic; }
+/* ── Meal plan checkboxes ── */
+.section-label { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: #6d28d9; margin-bottom: .75rem; margin-top: 1.25rem; font-weight: 600; }
+.section-label:first-child { margin-top: 0; }
+.macro-bar { display: flex; gap: .75rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.macro { background: #f3f0ff; border: 1px solid #ddd8f8; border-radius: 10px; padding: .5rem 1rem; text-align: center; flex: 1; min-width: 90px; }
+.macro .m-val { font-size: 1.3rem; font-weight: 700; color: #6d28d9; }
+.macro .m-label { font-size: .7rem; color: #9d8ec7; text-transform: uppercase; letter-spacing: .08em; }
+.batch-box { background: #f3f0ff; border: 1px solid #c4b5fd; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem; }
+.batch-box h3 { font-size: .78rem; letter-spacing: .1em; color: #6d28d9; margin-bottom: .6rem; text-transform: uppercase; }
+.batch-items { display: flex; flex-wrap: wrap; gap: .4rem; }
+.batch-item { background: #fff; border: 1px solid #ddd8f8; border-radius: 20px; padding: .28rem .7rem; font-size: .81rem; color: #2d2560; }
+.day-meal { background: #f8f6ff; border: 1px solid #ddd8f8; border-radius: 10px; margin-bottom: .6rem; overflow: hidden; }
+.day-meal > summary { font-size: .88rem; padding: .65rem 1rem; font-weight: 600; }
+.meals-list { padding: 0 .75rem .75rem; }
+.meal-row { display: grid; grid-template-columns: 28px 90px 1fr auto; gap: .4rem; align-items: start; padding: .4rem 0; border-bottom: 1px solid #ece9fb; font-size: .84rem; }
+.meal-row:last-child { border-bottom: none; }
+.meal-row.no-cb { grid-template-columns: 90px 1fr auto; }
+.meal-cb { width: 18px; height: 18px; margin-top: .2rem; accent-color: #6d28d9; cursor: pointer; flex-shrink: 0; }
+.meal-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: #9d8ec7; padding-top: .1rem; }
+.meal-desc { color: #1e1b3a; }
+.meal-cal { font-size: .75rem; color: #b0a3d4; white-space: nowrap; }
+.meal-total { font-weight: 700; color: #4c1d95; }
+.meal-desc.editable, .meal-cal.editable { cursor: pointer; border-radius: 5px; border: 1px solid transparent; transition: border-color .15s, background .15s; padding: .1rem .2rem; }
+.meal-desc.editable:hover, .meal-cal.editable:hover { border-color: #c4b5fd; background: #f0eeff; }
+.meal-edit-input { width: 100%; font-size: .82rem; color: #1e1b3a; border: 1px solid #a78bfa; border-radius: 5px; padding: .15rem .3rem; background: #f8f6ff; outline: none; font-family: inherit; }
+.meal-edit-textarea { width: 100%; font-size: .82rem; color: #1e1b3a; border: 1px solid #a78bfa; border-radius: 5px; padding: .25rem .3rem; background: #f8f6ff; outline: none; font-family: inherit; min-height: 50px; resize: vertical; }
+.meal-row.meal-done .meal-desc, .meal-row.meal-done .meal-label { opacity: .45; text-decoration: line-through; }
+.tag-chicken { display: inline-block; background: #fef3c7; color: #92400e; font-size: .62rem; font-weight: 700; padding: .1rem .35rem; border-radius: 4px; margin-left: .3rem; vertical-align: middle; }
+.tag-cold { display: inline-block; background: #dbeafe; color: #1e40af; font-size: .62rem; font-weight: 700; padding: .1rem .35rem; border-radius: 4px; margin-left: .3rem; vertical-align: middle; }
+/* ── Snacks ── */
+.snack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+@media (max-width: 500px) { .snack-grid { grid-template-columns: 1fr; } }
+.snack-item { background: #f8f6ff; border: 1px solid #ddd8f8; border-radius: 8px; padding: .6rem .85rem; font-size: .84rem; color: #1e1b3a; }
+.snack-item .snack-name { font-weight: 600; color: #4c1d95; font-size: .85rem; }
+.snack-item .snack-cal { font-size: .73rem; color: #b0a3d4; }
+/* ── Recipes ── */
+.recipes-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.recipes-banner { font-size: .82rem; color: #6d28d9; font-weight: 600; }
+.btn-add-recipe { background: #4c1d95; color: #fff; border: none; border-radius: 8px; padding: .5rem 1rem; font-size: .85rem; cursor: pointer; font-weight: 600; white-space: nowrap; }
+.btn-add-recipe:hover { background: #6d28d9; }
+.recipe-grid { display: flex; flex-direction: column; gap: .75rem; margin-bottom: .5rem; }
+.recipe-card { background: #f8f6ff; border: 1px solid #ddd8f8; border-radius: 10px; padding: .85rem 1rem; }
+.recipe-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; margin-bottom: .3rem; }
+.recipe-card h4 { font-size: .9rem; font-weight: 700; color: #4c1d95; flex: 1; }
+.recipe-card p { font-size: .83rem; color: #2d2560; }
+.recipe-section-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6d28d9; margin: .55rem 0 .25rem; }
+.recipe-ing-list { list-style: none; padding: 0; margin: 0 0 .3rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .1rem .8rem; }
+.recipe-ing-list li { font-size: .78rem; color: #2d2560; padding-left: .8rem; position: relative; line-height: 1.3; }
+.recipe-ing-list li::before { content: '•'; position: absolute; left: .15rem; color: #a78bfa; font-weight: 700; }
+.recipe-instructions { font-size: .83rem; color: #2d2560; line-height: 1.5; white-space: pre-line; margin: 0 0 .25rem; }
+.recipe-edited-tag { font-size: .68rem; color: #6d28d9; background: #ede9fe; padding: .12rem .45rem; border-radius: 10px; font-weight: 600; letter-spacing: .04em; }
+.recipe-tags { margin-top: .4rem; display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; }
+.meal-toggle { font-size: .75rem; font-weight: 700; padding: .3rem .7rem; border-radius: 20px; border: 1.5px solid #c4b5fd; background: #fff; color: #6d28d9; cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+.meal-toggle.selected { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+.meal-toggle:hover { background: #ede9fe; }
+.icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; padding: .2rem; border-radius: 6px; line-height: 1; }
+.icon-btn:hover { background: #ede9fe; }
+/* ── Grocery ── */
+.grocery-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.grocery-count { font-size: .82rem; color: #6d28d9; font-weight: 600; }
+.toolbar-btn { font-size: .78rem; padding: .35rem .75rem; border-radius: 8px; border: 1px solid #c4b5fd; background: #f3f0ff; color: #4c1d95; cursor: pointer; font-weight: 600; }
+.toolbar-btn:hover { background: #ede9fe; }
+.toolbar-btn.danger { border-color: #fca5a5; background: #fff1f2; color: #b91c1c; }
+.toolbar-btn.danger:hover { background: #fee2e2; }
+.grocery-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 1rem; }
+.grocery-section h3 { font-size: .74rem; text-transform: uppercase; letter-spacing: .1em; color: #6d28d9; margin-bottom: .5rem; font-weight: 700; }
+.grocery-list { list-style: none; padding: 0; }
+.grocery-item { display: flex; align-items: center; padding: .3rem 0; border-bottom: 1px solid #f3f0ff; font-size: .85rem; gap: .5rem; }
+.grocery-item:last-child { border-bottom: none; }
+.grocery-item label { display: flex; align-items: center; gap: .5rem; flex: 1; cursor: pointer; min-height: 32px; color: #1e1b3a; }
+.grocery-item input[type=checkbox] { width: 18px; height: 18px; accent-color: #6d28d9; flex-shrink: 0; }
+.grocery-item.checked label { text-decoration: line-through; color: #b0a3d4; }
+.remove-btn { background: none; border: none; cursor: pointer; color: #b0a3d4; font-size: 1rem; padding: .1rem .3rem; border-radius: 4px; flex-shrink: 0; }
+.remove-btn:hover { color: #b91c1c; background: #fee2e2; }
+.add-item-form { display: flex; flex-direction: column; gap: .5rem; padding: .75rem; background: #f3f0ff; border-radius: 10px; margin-top: .75rem; }
+.add-item-form.hidden { display: none; }
+.add-item-form input, .add-item-form select { padding: .5rem .75rem; border: 1px solid #c4b5fd; border-radius: 8px; font-size: .88rem; background: #fff; color: #1e1b3a; width: 100%; }
+.add-item-form-btns { display: flex; gap: .5rem; }
+.add-item-btn { margin-top: .75rem; background: none; border: 1.5px dashed #c4b5fd; border-radius: 8px; color: #6d28d9; padding: .5rem; font-size: .85rem; cursor: pointer; width: 100%; font-weight: 600; }
+.add-item-btn:hover { background: #f3f0ff; }
+/* ── Coffee ── */
+.coffee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+@media (max-width: 500px) { .coffee-grid { grid-template-columns: 1fr; } }
+.coffee-tip { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: .65rem .9rem; font-size: .84rem; color: #1e1b3a; }
+.coffee-tip .tip-head { font-weight: 700; color: #92400e; font-size: .8rem; margin-bottom: .15rem; }
+/* ── Motivation ── */
+.motivation-cards { display: flex; flex-direction: column; gap: .75rem; }
+.motivation-card { background: #f8f6ff; border-left: 3px solid #a78bfa; border-radius: 0 10px 10px 0; padding: .75rem 1rem; font-size: .87rem; color: #2d2560; }
+.motivation-card strong { color: #4c1d95; display: block; margin-bottom: .2rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+/* ── Modal bottom sheet ── */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.modal-backdrop.open { opacity: 1; pointer-events: all; }
+.modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; display: flex; flex-direction: column; transform: translateY(100%); transition: transform .3s ease; }
+.modal-backdrop.open .modal-sheet { transform: translateY(0); }
+.modal-handle { width: 40px; height: 4px; background: #ddd8f8; border-radius: 2px; margin: .75rem auto .25rem; flex-shrink: 0; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: .5rem 1.25rem .75rem; flex-shrink: 0; border-bottom: 1px solid #ece9fb; }
+.modal-header h2 { font-size: 1.05rem; color: #4c1d95; }
+.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9d8ec7; padding: .2rem .4rem; border-radius: 6px; }
+.modal-close:hover { background: #f3f0ff; }
+.modal-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: .85rem; }
+.modal-footer { padding: .75rem 1.25rem 1rem; display: flex; gap: .75rem; flex-shrink: 0; border-top: 1px solid #ece9fb; }
+.form-row label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #6d28d9; display: block; margin-bottom: .35rem; }
+.form-row input[type=text], .form-row input[type=number], .form-row select, .form-row textarea { width: 100%; padding: .55rem .75rem; border: 1px solid #ddd8f8; border-radius: 8px; font-size: .9rem; color: #1e1b3a; background: #f8f6ff; font-family: inherit; }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { outline: none; border-color: #a78bfa; background: #fff; }
+.form-row textarea { resize: vertical; min-height: 70px; }
+.form-row-inline { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; }
+.ing-header { display: grid; grid-template-columns: 1fr 55px 60px 1fr 28px; gap: .35rem; font-size: .65rem; text-transform: uppercase; color: #9d8ec7; letter-spacing: .06em; padding: 0 0 .25rem; }
+.ing-row { display: grid; grid-template-columns: 1fr 55px 60px 1fr 28px; gap: .35rem; align-items: center; margin-bottom: .35rem; }
+.ing-row input, .ing-row select { padding: .45rem .5rem; border: 1px solid #ddd8f8; border-radius: 6px; font-size: .82rem; color: #1e1b3a; background: #fff; width: 100%; }
+.ing-row input:focus, .ing-row select:focus { outline: none; border-color: #a78bfa; }
+@media (max-width: 480px) {
+  .ing-header { grid-template-columns: 1fr 45px 1fr 28px; }
+  .ing-header span:nth-child(3) { display: none; }
+  .ing-row { grid-template-columns: 1fr 45px 1fr 28px; }
+  .ing-row input.ing-unit { display: none; }
+}
+.add-ing-btn { background: none; border: 1.5px dashed #c4b5fd; border-radius: 6px; color: #6d28d9; padding: .4rem; font-size: .82rem; cursor: pointer; width: 100%; margin-top: .25rem; font-weight: 600; }
+.add-ing-btn:hover { background: #f3f0ff; }
+.btn-primary { flex: 1; background: #4c1d95; color: #fff; border: none; border-radius: 10px; padding: .7rem; font-size: .95rem; font-weight: 700; cursor: pointer; }
+.btn-primary:hover { background: #6d28d9; }
+.btn-secondary { flex: 1; background: #f3f0ff; color: #4c1d95; border: 1px solid #c4b5fd; border-radius: 10px; padding: .7rem; font-size: .95rem; font-weight: 700; cursor: pointer; }
+.btn-secondary:hover { background: #ede9fe; }
+.empty-recipes { font-size: .85rem; color: #9d8ec7; text-align: center; padding: 1rem; }
+</style>
+</head>
+<body>
+<h1>MY FITNESS PLAN</h1>
+<div class="subtitle">VEGETARIAN · BATCH PREP · PUSH / PULL / LEGS</div>
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section">
+  <details open>
+    <summary><span class="icon">✦</span> Overview &amp; Daily Habits</summary>
+    <div class="section-body">
+      <div class="two-col">
+        <div class="card">
+          <h3>How This Works</h3>
+          <ul>
+            <li>Strength training builds muscle, raising your resting metabolism</li>
+            <li>The meal plan creates a gentle calorie deficit (~300–400 kcal/day)</li>
+            <li>High protein keeps you full and protects muscle while losing fat</li>
+            <li>You're already getting stronger — the food side unlocks the weight loss</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Daily Non-Negotiables</h3>
+          <div class="habits">
+            <span class="habit">💧 2L+ water</span>
+            <span class="habit">⚡ Electrolytes</span>
+            <span class="habit">💊 Creatine gummies</span>
+            <span class="habit">☕ Coffee (timed right)</span>
+            <span class="habit">😴 7–8h sleep</span>
+            <span class="habit">🥗 Batch food ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- COFFEE -->
+<div class="section">
+  <details>
+    <summary><span class="icon">☕</span> Coffee &amp; Caffeine</summary>
+    <div class="section-body">
+      <div class="coffee-grid">
+        <div class="coffee-tip"><div class="tip-head">Pre-Workout (best use)</div>Black coffee 30–60 min before your workout is a free performance booster. Pair with creatine gummies for a solid pre-workout.</div>
+        <div class="coffee-tip"><div class="tip-head">Keep Calories Low</div>Black coffee = 0 kcal. A splash of unsweetened oat/almond milk adds ~15 kcal. Avoid flavored syrups.</div>
+        <div class="coffee-tip"><div class="tip-head">Cut Off at 2pm</div>Caffeine has a 5–6 hr half-life. Late coffee disrupts sleep, raises cortisol, and makes weight loss harder.</div>
+        <div class="coffee-tip"><div class="tip-head">Afternoon Alternative</div>Matcha or green tea after 12pm — lower caffeine, L-theanine gives calm focus without the jitters.</div>
+      </div>
+      <div class="callout coffee" style="margin-top:.85rem">
+        <strong>Watch out:</strong> Coffee suppresses appetite in the morning — great in theory, but leads to under-eating early and overeating at night. Have breakfast within an hour of waking even if you're not hungry.
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- SCHEDULE -->
+<div class="section">
+  <details open>
+    <summary><span class="icon">📅</span> Weekly Schedule</summary>
+    <div class="section-body">
+      <div class="week-grid">
+        <div class="day-card push"><div class="day-name">Mon</div><div class="day-type">Push</div><div>shoulders + triceps</div></div>
+        <div class="day-card rest"><div class="day-name">Tue</div><div class="day-type">Rest</div><div>walk if you want</div></div>
+        <div class="day-card pull"><div class="day-name">Wed</div><div class="day-type">Pull</div><div>back + biceps</div></div>
+        <div class="day-card legs"><div class="day-name">Thu</div><div class="day-type">Legs</div><div>glutes + quads</div></div>
+        <div class="day-card pottery"><div class="day-name">Fri</div><div class="day-type">Pottery</div><div>counts as upper body</div></div>
+        <div class="day-card rest"><div class="day-name">Sat</div><div class="day-type">Active Rest</div><div>stretch or walk</div></div>
+        <div class="day-card rest"><div class="day-name">Sun</div><div class="day-type">Batch Prep</div><div>cook for the week</div></div>
+      </div>
+      <p class="schedule-note">Flexible — shift any day. Only rule: no two hard days back-to-back.</p>
+    </div>
+  </details>
+</div>
+
+<!-- WORKOUTS -->
+<div class="section">
+  <details open>
+    <summary><span class="icon">🏋️</span> Workouts — Push / Pull / Legs</summary>
+    <div class="section-body">
+      <div class="workout-block">
+        <div class="workout-title push">Push Day — Shoulders, Chest &amp; Triceps <span id="pill-push" class="progress-pill"></span><span class="duration">~35 min</span></div>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+        <div id="workout-push"></div>
+      </div>
+      <div class="workout-block">
+        <div class="workout-title pull">Pull Day — Back &amp; Biceps <span id="pill-pull" class="progress-pill"></span><span class="duration">~35 min</span></div>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+        <div id="workout-pull"></div>
+      </div>
+      <div class="workout-block">
+        <div class="workout-title legs">Leg Day — Glutes, Quads &amp; Hamstrings <span id="pill-legs" class="progress-pill"></span><span class="duration">~35 min</span></div>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+        <div id="workout-legs"></div>
+      </div>
+      <div class="card" style="margin-top:.5rem">
+        <h3>When to Add Weight</h3>
+        <p>If you complete all reps easily for 2 sessions in a row, go up 2–5 lbs. Never sacrifice form. Tap any Sets/Reps/Weight cell to edit it — your changes save automatically.</p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- SNACKS & DESSERTS -->
+<div class="section">
+  <details>
+    <summary><span class="icon">🍫</span> Snacks &amp; Desserts</summary>
+    <div class="section-body">
+      <p class="section-label">Daytime Snacks</p>
+      <div class="snack-grid">
+        <div class="snack-item"><div class="snack-name">Apple + almond butter</div><div>Slice an apple, dip in 1.5 tbsp almond butter. Fiber + fat keeps you full.</div><div class="snack-cal">~200 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Hummus + veggies + pita</div><div>3 tbsp hummus, carrots or cucumber, half a small pita.</div><div class="snack-cal">~200 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">String cheese + fruit</div><div>One string cheese stick + grapes or an orange.</div><div class="snack-cal">~160 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Greek yogurt parfait</div><div>½ cup plain Greek yogurt + 1 tbsp honey + 1 tbsp granola + berries.</div><div class="snack-cal">~200 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Rice cake + peanut butter</div><div>2 rice cakes + 1.5 tbsp peanut butter. Light, crunchy, hits the craving.</div><div class="snack-cal">~200 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Edamame (shelled)</div><div>½ cup shelled edamame with sea salt. Surprisingly high protein.</div><div class="snack-cal">~100 kcal · 9g protein</div></div>
+        <div class="snack-item"><div class="snack-name">Cheese quesadilla triangles</div><div>1 small flour tortilla + shredded cheese, pan-toasted 2 min.</div><div class="snack-cal">~220 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Almonds + dark chocolate chips</div><div>Handful of almonds (15–20) + 1 tbsp dark chocolate chips.</div><div class="snack-cal">~180 kcal</div></div>
+      </div>
+      <p class="section-label" style="margin-top:1.25rem">Desserts</p>
+      <div class="snack-grid">
+        <div class="snack-item"><div class="snack-name">Dark chocolate (2 squares)</div><div>70%+ dark chocolate. Has magnesium, satisfies the craving.</div><div class="snack-cal">~90 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Frozen banana nice cream</div><div>Blend 1 frozen banana + 1 tbsp peanut butter. Creamy, no sugar added.</div><div class="snack-cal">~160 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">Chia pudding</div><div>3 tbsp chia seeds + 1 cup almond milk + 1 tsp honey. Refrigerate overnight. Top with granola.</div><div class="snack-cal">~180 kcal · 6g protein</div></div>
+        <div class="snack-item"><div class="snack-name">Frozen yogurt bark</div><div>Spread ½ cup Greek yogurt on parchment, honey + granola + choc chips. Freeze 2 hrs.</div><div class="snack-cal">~200 kcal</div></div>
+        <div class="snack-item"><div class="snack-name">PB energy balls (batch)</div><div>1 cup oats + ½ cup PB + 3 tbsp honey + ¼ cup mini choc chips. Roll, refrigerate. Makes ~12.</div><div class="snack-cal">~120 kcal each</div></div>
+        <div class="snack-item"><div class="snack-name">Honey + ricotta toast</div><div>1 slice whole wheat toast + 2 tbsp ricotta + drizzle of honey.</div><div class="snack-cal">~170 kcal</div></div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- MEAL PLAN -->
+<div class="section">
+  <details open>
+    <summary><span class="icon">🥗</span> Weekly Meal Plan</summary>
+    <div class="section-body">
+      <div class="macro-bar">
+        <div class="macro"><div class="m-val">~1,550</div><div class="m-label">kcal / day</div></div>
+        <div class="macro"><div class="m-val">~110g</div><div class="m-label">protein / day</div></div>
+        <div class="macro"><div class="m-val">~150g</div><div class="m-label">carbs / day</div></div>
+        <div class="macro"><div class="m-val">~45g</div><div class="m-label">fat / day</div></div>
+      </div>
+      <div class="batch-box">
+        <h3>Sunday Batch Prep (~2 hours)</h3>
+        <div class="batch-items">
+          <span class="batch-item">🫙 Overnight oats × 5 jars</span>
+          <span class="batch-item">🍲 Big pot of red lentil dal</span>
+          <span class="batch-item">🌾 2 cups quinoa or farro</span>
+          <span class="batch-item">🥦 Sheet-pan roasted veggies</span>
+          <span class="batch-item">🫘 1 can chickpeas, roasted</span>
+          <span class="batch-item">🫙 Tahini lemon dressing</span>
+          <span class="batch-item">🥧 Veggie frittata (sliced)</span>
+          <span class="batch-item">🫙 Marinated chickpea salad</span>
+          <span class="batch-item">🍝 Pasta batch (plain)</span>
+        </div>
+      </div>
+      <p class="section-label">Daily Meals — check off as you eat <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#9d8ec7">(resets daily)</span></p>
+      <details class="day-meal" open>
+        <summary>Monday — Push Day</summary>
+        <div class="meals-list" id="meals-mon">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Overnight oats: ½ cup oats + ⅓ cup Greek yogurt + ¾ cup almond milk + 1 tbsp chia seeds + ½ banana + 1 tbsp almond butter</span><span class="meal-cal">~420 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Morning</span><span class="meal-desc">Coffee (black or splash of oat milk) + creatine gummies</span><span class="meal-cal">~5 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">Grain bowl: ½ cup farro + roasted broccoli + ½ cup chickpeas + cucumber + 2 tbsp tahini dressing <span class="tag-chicken">+ grilled chicken for partner</span></span><span class="meal-cal">~430 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Snack</span><span class="meal-desc">Apple + 1.5 tbsp almond butter</span><span class="meal-cal">~200 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dinner</span><span class="meal-desc">Red lentil dal (1.5 cups) + ½ cup brown rice + spoonful of Greek yogurt <span class="tag-chicken">+ shredded chicken for partner</span></span><span class="meal-cal">~490 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dessert</span><span class="meal-desc">2 squares dark chocolate</span><span class="meal-cal">~90 kcal</span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Total</span><span class="meal-desc meal-total">~1,635 kcal · ~110g protein</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+      <details class="day-meal">
+        <summary>Tuesday — Rest Day</summary>
+        <div class="meals-list" id="meals-tue">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Overnight oats jar (from batch) + ½ banana</span><span class="meal-cal">~390 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Morning</span><span class="meal-desc">Coffee + creatine gummies</span><span class="meal-cal">~5 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">Mediterranean chickpea salad: chickpeas + cucumber + cherry tomatoes + red onion + feta + lemon dressing <span class="tag-cold">cold</span> <span class="tag-chicken">+ chicken for partner</span></span><span class="meal-cal">~410 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Snack</span><span class="meal-desc">Greek yogurt parfait: ½ cup yogurt + 1 tbsp honey + 1 tbsp granola</span><span class="meal-cal">~200 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dinner</span><span class="meal-desc">Black bean tacos: 2 tortillas + warmed black beans + cabbage + avocado + cheese + salsa <span class="tag-chicken">+ chicken strips for partner</span></span><span class="meal-cal">~520 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dessert</span><span class="meal-desc">Frozen banana nice cream (blend 1 frozen banana + 1 tbsp PB)</span><span class="meal-cal">~160 kcal</span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Total</span><span class="meal-desc meal-total">~1,685 kcal · ~100g protein</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+      <details class="day-meal">
+        <summary>Wednesday — Pull Day</summary>
+        <div class="meals-list" id="meals-wed">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Overnight oats (from batch) + 1 tbsp peanut butter</span><span class="meal-cal">~400 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Morning</span><span class="meal-desc">Coffee pre-workout + creatine gummies</span><span class="meal-cal">~5 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">White bean pasta salad: pasta + cannellini beans + spinach + lemon + olive oil + parmesan <span class="tag-cold">cold</span> <span class="tag-chicken">+ grilled chicken for partner</span></span><span class="meal-cal">~440 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Snack</span><span class="meal-desc">Edamame (½ cup shelled) + rice cake with PB</span><span class="meal-cal">~200 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dinner</span><span class="meal-desc">Sheet pan veggie fajitas: bell peppers + zucchini + onion over rice with guacamole + cheese <span class="tag-chicken">+ chicken thighs on same pan for partner</span></span><span class="meal-cal">~470 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dessert</span><span class="meal-desc">Chia pudding (made night before) + granola</span><span class="meal-cal">~180 kcal</span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Total</span><span class="meal-desc meal-total">~1,695 kcal · ~105g protein</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+      <details class="day-meal">
+        <summary>Thursday — Leg Day</summary>
+        <div class="meals-list" id="meals-thu">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Overnight oats (from batch) + ½ banana + chia seeds</span><span class="meal-cal">~390 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Morning</span><span class="meal-desc">Coffee pre-workout + creatine gummies</span><span class="meal-cal">~5 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">2 slices veggie frittata + big green salad with roasted veggies + tahini dressing <span class="tag-chicken">+ rotisserie chicken for partner</span></span><span class="meal-cal">~420 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Snack</span><span class="meal-desc">String cheese + carrots + 2 tbsp hummus</span><span class="meal-cal">~175 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dinner</span><span class="meal-desc">Pesto pasta primavera: pasta + pesto + cherry tomatoes + zucchini + peas + parmesan <span class="tag-chicken">+ grilled chicken for partner</span></span><span class="meal-cal">~490 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dessert</span><span class="meal-desc">2 squares dark chocolate + small handful of almonds</span><span class="meal-cal">~160 kcal</span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Total</span><span class="meal-desc meal-total">~1,640 kcal · ~105g protein</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+      <details class="day-meal">
+        <summary>Friday — Pottery Day</summary>
+        <div class="meals-list" id="meals-fri">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Overnight oats (last batch jar) + 1 tbsp almond butter</span><span class="meal-cal">~400 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Morning</span><span class="meal-desc">Coffee + creatine gummies</span><span class="meal-cal">~5 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">Greek orzo salad: orzo + cucumber + cherry tomatoes + olives + feta + lemon dressing <span class="tag-cold">cold</span> <span class="tag-chicken">+ chicken for partner</span></span><span class="meal-cal">~440 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Snack</span><span class="meal-desc">Cheese quesadilla triangles (1 small tortilla, pan-toasted)</span><span class="meal-cal">~220 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dinner</span><span class="meal-desc">Red lentil dal (last of batch) + ½ cup quinoa + cucumber salad with lemon + olive oil <span class="tag-chicken">+ chicken for partner</span></span><span class="meal-cal">~460 kcal</span></div>
+          <div class="meal-row"><span class="meal-label">Dessert</span><span class="meal-desc">Frozen yogurt bark (made earlier in week)</span><span class="meal-cal">~200 kcal</span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Total</span><span class="meal-desc meal-total">~1,725 kcal · ~105g protein</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+      <details class="day-meal">
+        <summary>Saturday &amp; Sunday — Flexible + Batch Prep</summary>
+        <div class="meals-list" id="meals-weekend">
+          <div class="meal-row"><span class="meal-label">Breakfast</span><span class="meal-desc">Keep the overnight oats habit or make a savory bowl with frittata + roasted veggie leftovers</span><span class="meal-cal"></span></div>
+          <div class="meal-row"><span class="meal-label">Lunch</span><span class="meal-desc">Anything from the recipes section, or leftovers. Good day for the caprese pasta salad or a white bean sandwich</span><span class="meal-cal"></span></div>
+          <div class="meal-row no-cb"><span class="meal-label">Dinner</span><span class="meal-desc">Flexible — restaurant or home-cooked. Sunday: batch prep for the next week.</span><span class="meal-cal"></span></div>
+        </div>
+      </details>
+    </div>
+  </details>
+</div>
+
+<!-- RECIPES -->
+<div class="section">
+  <details>
+    <summary><span class="icon">🍝</span> Recipes &amp; Meal Prep Ideas</summary>
+    <div class="section-body">
+      <div class="recipes-header">
+        <span id="recipes-banner" class="recipes-banner"></span>
+        <button class="btn-add-recipe" onclick="openRecipeModal()">+ Add My Recipe</button>
+      </div>
+      <div id="recipes-container"></div>
+    </div>
+  </details>
+</div>
+
+<!-- GROCERY -->
+<div class="section">
+  <details>
+    <summary><span class="icon">🛒</span> Grocery List</summary>
+    <div class="section-body">
+      <div id="grocery-container"></div>
+    </div>
+  </details>
+</div>
+
+<!-- LOW MOTIVATION -->
+<div class="section">
+  <details>
+    <summary><span class="icon">💜</span> Low Motivation Days</summary>
+    <div class="section-body">
+      <div class="motivation-cards">
+        <div class="motivation-card"><strong>The 10-Minute Rule</strong>Tell yourself you'll just do the warm-up and first two exercises. Most of the time you'll keep going. If not, 2 exercises beats zero.</div>
+        <div class="motivation-card"><strong>The Minimum Workout</strong>On truly bad days: Push = shoulder press + lateral raise. Pull = hammer curls + seated row. Legs = squats + glute bridge. Done. Valid.</div>
+        <div class="motivation-card"><strong>Food is Your Biggest Lever</strong>Working out 3× a week burns maybe 400–600 extra calories total. One good week of eating creates more deficit than two weeks of workouts. Batch prep Sunday is non-negotiable.</div>
+        <div class="motivation-card"><strong>What to Track Instead of the Scale</strong>The scale lies on Prozac. Track: how your clothes fit, reps vs last month, energy at 3pm, how you feel after workouts.</div>
+        <div class="motivation-card"><strong>Pottery Counts</strong>Upper body, grip strength, core engagement — it counts. Pottery + one workout = two training sessions. Not a bad week.</div>
+        <div class="motivation-card"><strong>Use the Cold Meals on Hard Days</strong>The marinated salads require zero effort to serve. Grab the chickpea salad or orzo straight from the fridge. You batch-prepped it exactly for this moment.</div>
+      </div>
+    </div>
+  </details>
+</div>
+
+</div><!-- /container -->
+
+<!-- RECIPE MODAL -->
+<div id="recipe-modal" class="modal-backdrop">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2 id="modal-title">Add My Recipe</h2>
+      <button class="modal-close" onclick="closeRecipeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Recipe Name *</label>
+        <input id="rf-name" type="text" placeholder="e.g. My Pasta Bake">
+      </div>
+      <div class="form-row-inline form-row">
+        <div><label>Emoji</label><input id="rf-emoji" type="text" placeholder="🍴" maxlength="2"></div>
+        <div><label>Category</label>
+          <select id="rf-category">
+            <option value="dinner">Dinner</option>
+            <option value="lunch">Lunch</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="snack">Snack / Dessert</option>
+            <option value="sauce">Sauce / Marinade</option>
+          </select>
+        </div>
+        <div><label>Est. kcal</label><input id="rf-kcal" type="number" placeholder="450" inputmode="numeric"></div>
+      </div>
+      <div class="form-row">
+        <label>Instructions</label>
+        <textarea id="rf-instructions" placeholder="How to make it..."></textarea>
+      </div>
+      <div class="form-row">
+        <label>Ingredients <span style="font-weight:400;opacity:.6;text-transform:none">(used to build your grocery list)</span></label>
+        <div class="ing-header"><span>Name</span><span>Qty</span><span>Unit</span><span>Section</span><span></span></div>
+        <div id="ingredient-rows"></div>
+        <button type="button" class="add-ing-btn" onclick="addIngRow()">+ Add ingredient</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeRecipeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveRecipe()">Save Recipe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════
+const WORKOUTS = {
+  push: {
+    title: 'Push Day — Shoulders, Chest & Triceps', color: 'push', duration: '~35 min',
+    warmup: 'Arm circles forward & back × 20, shoulder rolls × 10, torso twists × 20',
+    exercises: [
+      { name: 'Dumbbell Shoulder Press', sets: '3', reps: '10–12', weight: '12–15 lbs' },
+      { name: 'Lateral Raises', sets: '3', reps: '12–15', weight: '5 lbs' },
+      { name: 'DB Floor Chest Press', sets: '3', reps: '10', weight: '10–12 lbs each', isNew: true },
+      { name: 'Overhead DB Tricep Extension', sets: '3', reps: '10–12', weight: '10–12 lbs' },
+      { name: 'Tricep Pushdowns (band or cable)', sets: '3', reps: '10', weight: '10 lbs' },
+      { name: 'Plank Hold', sets: '3', reps: '20–30 sec', weight: 'Bodyweight', isNew: true }
+    ]
+  },
+  pull: {
+    title: 'Pull Day — Back & Biceps', color: 'pull', duration: '~35 min',
+    warmup: 'Cat-cow × 10, hip hinges × 10, band pull-aparts × 15',
+    exercises: [
+      { name: 'Lat Pulldown (band or cable)', sets: '3', reps: '10–12', weight: '—' },
+      { name: 'Seated Row (band or cable)', sets: '3', reps: '10–12', weight: '—' },
+      { name: 'Hammer Curls', sets: '3', reps: '10–12', weight: '10–12 lbs' },
+      { name: 'Bicep Curls', sets: '3', reps: '10–12', weight: '10 lbs' },
+      { name: 'Romanian Deadlifts (DB)', sets: '3', reps: '10', weight: '10 lbs each' },
+      { name: 'Dead Bug', sets: '3', reps: '10 each side', weight: 'Bodyweight', isNew: true }
+    ]
+  },
+  legs: {
+    title: 'Leg Day — Glutes, Quads & Hamstrings', color: 'legs', duration: '~35 min',
+    warmup: 'Marching in place × 30 sec, leg swings × 10 each, bodyweight squats × 10',
+    exercises: [
+      { name: 'Squats (hold DB at chest to progress)', sets: '3', reps: '10–12', weight: 'BW or 10–12 lbs' },
+      { name: 'Reverse Lunge', sets: '3', reps: '10 each leg', weight: 'Bodyweight', isNew: true },
+      { name: 'Glute Bridge + Pulses', sets: '2', reps: '15 + 15 pulses', weight: '15 lbs' },
+      { name: 'Romanian Deadlifts (DB)', sets: '3', reps: '10', weight: '10 lbs' },
+      { name: 'Core: Sit-ups / Russian Twists', sets: '3', reps: '14–20', weight: 'Bodyweight' },
+      { name: 'Side-lying Clamshell', sets: '2', reps: '15 each side', weight: 'Bodyweight', isNew: true }
+    ]
+  }
+};
+
+const SECTION_ORDER = ['Produce','Protein & Dairy','Frozen','Canned & Dry','Grains & Pasta','Pantry'];
+const ING_SECTIONS = ['Produce','Protein & Dairy','Canned & Dry','Grains & Pasta','Pantry','Frozen'];
+
+const RECIPES = [
+  { id: 'red-lentil-dal', name: 'Red Lentil Dal', emoji: '🍲', category: 'dinner',
+    chickenAdd: 'shredded chicken for partner',
+    instructions: '1 cup red lentils + 1 can diced tomatoes + 1 can coconut milk + garlic + ginger + cumin + turmeric + spinach. Simmer 25 min. Serve over rice with a spoonful of Greek yogurt. Freezes perfectly — make a double batch.',
+    ingredients: [
+      { name: 'Red lentils', qty: 1.5, unit: 'cups', section: 'Canned & Dry' },
+      { name: 'Diced tomatoes', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Coconut milk', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Garlic', qty: 3, unit: 'cloves', section: 'Produce' },
+      { name: 'Fresh ginger', qty: 1, unit: 'piece', section: 'Produce' },
+      { name: 'Baby spinach', qty: 2, unit: 'cups', section: 'Produce' },
+      { name: 'Brown rice', qty: 1, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Greek yogurt', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Olive oil', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Cumin', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Turmeric', qty: 0.5, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'black-bean-tacos', name: 'Black Bean Tacos', emoji: '🌮', category: 'dinner',
+    chickenAdd: 'chicken strips for partner',
+    instructions: '1 can black beans warmed with garlic, cumin, and smoked paprika. Serve in small flour tortillas with shredded cabbage, avocado slices, shredded cheese, and salsa. Quick, no cooking required.',
+    ingredients: [
+      { name: 'Black beans', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Small flour tortillas', qty: 4, unit: '-', section: 'Grains & Pasta' },
+      { name: 'Cabbage', qty: 0.5, unit: 'head', section: 'Produce' },
+      { name: 'Avocados', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Shredded cheese', qty: 0.5, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Salsa', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Garlic', qty: 1, unit: 'clove', section: 'Produce' },
+      { name: 'Cumin', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Smoked paprika', qty: 0.25, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'veggie-frittata', name: 'Veggie Frittata', emoji: '🥧', category: 'breakfast',
+    instructions: '6 eggs whisked with ¼ cup feta + 2 cups spinach + roasted veggies. Bake 375°F for 20 min. Cut into 6 slices — lasts all week in the fridge.',
+    ingredients: [
+      { name: 'Eggs', qty: 6, unit: '-', section: 'Protein & Dairy' },
+      { name: 'Feta cheese', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Baby spinach', qty: 2, unit: 'cups', section: 'Produce' },
+      { name: 'Bell peppers', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Zucchini', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Olive oil', qty: 1, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'overnight-oats', name: 'Overnight Oats', emoji: '🫙', category: 'breakfast',
+    instructions: '½ cup rolled oats + ⅓ cup Greek yogurt + ¾ cup almond milk + 1 tbsp chia seeds. Mix, jar, refrigerate overnight. Morning: add ½ banana + 1 tbsp nut butter. Make 5 jars Sunday.',
+    ingredients: [
+      { name: 'Rolled oats', qty: 2.5, unit: 'cups', section: 'Grains & Pasta' },
+      { name: 'Greek yogurt', qty: 1.5, unit: 'cups', section: 'Protein & Dairy' },
+      { name: 'Almond milk', qty: 1, unit: 'carton', section: 'Pantry' },
+      { name: 'Chia seeds', qty: 5, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Bananas', qty: 3, unit: '-', section: 'Produce' },
+      { name: 'Almond butter', qty: 1, unit: 'jar', section: 'Pantry' }
+    ]
+  },
+  { id: 'sheet-pan-fajitas', name: 'Sheet Pan Veggie Fajitas', emoji: '🫑', category: 'dinner',
+    chickenAdd: 'chicken thighs on same pan',
+    instructions: 'Slice 3 bell peppers + 1 zucchini + 1 onion into strips. Toss with olive oil, cumin, smoked paprika, garlic. Roast at 425°F for 25 min. Serve over rice with guac + cheese + tortillas.',
+    ingredients: [
+      { name: 'Bell peppers', qty: 3, unit: '-', section: 'Produce' },
+      { name: 'Zucchini', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Onion', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Garlic', qty: 2, unit: 'cloves', section: 'Produce' },
+      { name: 'Avocados', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Brown rice', qty: 1, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Small flour tortillas', qty: 4, unit: '-', section: 'Grains & Pasta' },
+      { name: 'Shredded cheese', qty: 0.5, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Cumin', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Smoked paprika', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'sheet-pan-gnocchi', name: 'Sheet Pan Gnocchi with Tomatoes & White Beans', emoji: '🍠', category: 'dinner',
+    chickenAdd: 'chicken sausage for partner',
+    instructions: 'Toss 1 lb gnocchi + 1 pint cherry tomatoes + 1 can white beans + 2 tbsp olive oil + garlic on a sheet pan. Roast 425°F for 25 min. Top with fresh basil + parmesan.',
+    ingredients: [
+      { name: 'Gnocchi', qty: 1, unit: 'lb', section: 'Grains & Pasta' },
+      { name: 'Cherry tomatoes', qty: 1, unit: 'pint', section: 'Produce' },
+      { name: 'White/cannellini beans', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Garlic', qty: 3, unit: 'cloves', section: 'Produce' },
+      { name: 'Fresh basil', qty: 1, unit: 'bunch', section: 'Produce' },
+      { name: 'Parmesan', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'sheet-pan-halloumi', name: 'Sheet Pan Halloumi & Veggies', emoji: '🧀', category: 'dinner',
+    chickenAdd: 'chicken thighs on separate sheet',
+    instructions: 'Slice halloumi into thick pieces. Arrange with zucchini, bell pepper, red onion on a sheet pan. Drizzle with olive oil + oregano. Roast at 400°F for 20 min. Serve over couscous or with pita.',
+    ingredients: [
+      { name: 'Halloumi', qty: 1, unit: 'block', section: 'Protein & Dairy' },
+      { name: 'Zucchini', qty: 2, unit: '-', section: 'Produce' },
+      { name: 'Bell peppers', qty: 2, unit: '-', section: 'Produce' },
+      { name: 'Red onion', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Whole wheat pita', qty: 2, unit: '-', section: 'Grains & Pasta' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Dried oregano', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'white-bean-pasta', name: 'White Bean & Spinach Pasta', emoji: '🍝', category: 'dinner',
+    chickenAdd: 'grilled chicken for partner',
+    instructions: 'Cook pasta. While it cooks: sauté garlic in olive oil, add 1 can white beans + 2 cups spinach + juice of 1 lemon. Toss with pasta + parmesan + splash of pasta water. 20 min total.',
+    ingredients: [
+      { name: 'Pasta', qty: 0.5, unit: 'lb', section: 'Grains & Pasta' },
+      { name: 'White/cannellini beans', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Baby spinach', qty: 2, unit: 'cups', section: 'Produce' },
+      { name: 'Lemons', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Garlic', qty: 2, unit: 'cloves', section: 'Produce' },
+      { name: 'Parmesan', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'pesto-pasta', name: 'Pesto Pasta Primavera', emoji: '🌿', category: 'dinner',
+    chickenAdd: 'grilled chicken strips for partner',
+    instructions: 'Cook pasta, reserve ½ cup pasta water. Toss with 3–4 tbsp jarred pesto + halved cherry tomatoes + zucchini + frozen peas (thawed). Add pasta water to loosen. Finish with parmesan.',
+    ingredients: [
+      { name: 'Pasta', qty: 0.5, unit: 'lb', section: 'Grains & Pasta' },
+      { name: 'Pesto', qty: 4, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Cherry tomatoes', qty: 1, unit: 'pint', section: 'Produce' },
+      { name: 'Zucchini', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Frozen peas', qty: 1, unit: 'cup', section: 'Frozen' },
+      { name: 'Parmesan', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' }
+    ]
+  },
+  { id: 'pasta-e-ceci', name: 'Pasta e Ceci (Pasta with Chickpeas)', emoji: '🫘', category: 'dinner',
+    instructions: 'Sauté garlic + rosemary in olive oil. Add 1 can chickpeas (lightly smash half) + 1 can diced tomatoes. Simmer 10 min. Add cooked pasta + pasta water until creamy. Finish with parmesan.',
+    ingredients: [
+      { name: 'Pasta', qty: 0.5, unit: 'lb', section: 'Grains & Pasta' },
+      { name: 'Chickpeas', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Diced tomatoes', qty: 1, unit: 'can', section: 'Canned & Dry' },
+      { name: 'Garlic', qty: 3, unit: 'cloves', section: 'Produce' },
+      { name: 'Parmesan', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Dried rosemary', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'chickpea-salad', name: 'Mediterranean Chickpea Salad', emoji: '🥗', category: 'lunch',
+    cold: true, chickenAdd: 'sliced grilled chicken for partner',
+    instructions: '2 cans chickpeas + diced cucumber + halved cherry tomatoes + thinly sliced red onion + ½ cup feta + chopped parsley. Dress with olive oil + lemon + salt + oregano. Keeps 4 days.',
+    ingredients: [
+      { name: 'Chickpeas', qty: 2, unit: 'cans', section: 'Canned & Dry' },
+      { name: 'Cucumber', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Cherry tomatoes', qty: 1, unit: 'pint', section: 'Produce' },
+      { name: 'Red onion', qty: 0.5, unit: '-', section: 'Produce' },
+      { name: 'Feta cheese', qty: 0.5, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Fresh parsley', qty: 1, unit: 'bunch', section: 'Produce' },
+      { name: 'Lemons', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Olive oil', qty: 3, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Dried oregano', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'greek-orzo-salad', name: 'Greek Orzo Salad', emoji: '🫙', category: 'lunch',
+    cold: true, chickenAdd: 'chicken for partner',
+    instructions: 'Cook 1.5 cups orzo, rinse cold. Toss with diced cucumber + cherry tomatoes + kalamata olives + feta + red onion + olive oil + lemon + dried oregano. Gets better as it sits.',
+    ingredients: [
+      { name: 'Orzo pasta', qty: 1.5, unit: 'cups', section: 'Grains & Pasta' },
+      { name: 'Cucumber', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Cherry tomatoes', qty: 1, unit: 'pint', section: 'Produce' },
+      { name: 'Kalamata olives', qty: 0.5, unit: 'cup', section: 'Canned & Dry' },
+      { name: 'Feta cheese', qty: 0.5, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Red onion', qty: 0.5, unit: '-', section: 'Produce' },
+      { name: 'Lemons', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Olive oil', qty: 3, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Dried oregano', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'white-bean-herb-salad', name: 'White Bean & Herb Salad', emoji: '🌿', category: 'lunch',
+    cold: true,
+    instructions: '2 cans white beans + diced celery + chopped parsley + thinly sliced red onion. Dress with olive oil + lemon + white wine vinegar + salt. Ready in 5 min, no cooking. Lasts all week.',
+    ingredients: [
+      { name: 'White/cannellini beans', qty: 2, unit: 'cans', section: 'Canned & Dry' },
+      { name: 'Celery', qty: 2, unit: 'stalks', section: 'Produce' },
+      { name: 'Fresh parsley', qty: 0.5, unit: 'bunch', section: 'Produce' },
+      { name: 'Red onion', qty: 0.5, unit: '-', section: 'Produce' },
+      { name: 'Lemons', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Olive oil', qty: 3, unit: 'tbsp', section: 'Pantry' },
+      { name: 'White wine vinegar', qty: 1, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'caprese-pasta-salad', name: 'Caprese Pasta Salad', emoji: '🍅', category: 'lunch',
+    cold: true, chickenAdd: 'chicken for partner',
+    instructions: 'Cooked pasta (cooled) + halved cherry tomatoes + fresh mozzarella + fresh basil + olive oil + balsamic glaze. No cooking beyond the pasta. Light, summery, great for hot days.',
+    ingredients: [
+      { name: 'Pasta', qty: 0.5, unit: 'lb', section: 'Grains & Pasta' },
+      { name: 'Cherry tomatoes', qty: 1, unit: 'pint', section: 'Produce' },
+      { name: 'Fresh mozzarella', qty: 0.5, unit: 'lb', section: 'Protein & Dairy' },
+      { name: 'Fresh basil', qty: 1, unit: 'bunch', section: 'Produce' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Balsamic glaze', qty: 2, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'snickerdoodle-protein-balls', name: 'Vegan Snickerdoodle Protein Balls', emoji: '🍪', category: 'snack',
+    notes: '⭐ Tasty + easy! Use rolled oats blended in blender for oat flour. Eva vanilla protein packet works great. Coating not needed.',
+    instructions: 'Whisk together ¾ cup oat flour (tip: blend rolled oats) + ½ cup vanilla protein powder + ½ tsp cinnamon + ¼ tsp salt. Add ½ cup almond butter + ¼ cup maple syrup + 1 tsp vanilla extract. Stir until thick dough forms — if too dry, add plant milk 1 tsp at a time. Roll into 12 balls by hand. Store in fridge up to 1 week, or freeze. No baking needed. 126 kcal each.',
+    kcal: 126,
+    ingredients: [
+      { name: 'Almond butter', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Maple syrup', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Vanilla extract', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Rolled oats (for oat flour)', qty: 0.75, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Vanilla protein powder', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Ground cinnamon', qty: 0.5, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'oatmeal-banana-bread', name: 'Healthy Oatmeal Chocolate Chip Banana Bread', emoji: '🍌', category: 'breakfast',
+    instructions: 'Preheat oven to 350°F, grease a 9x5 loaf pan with coconut oil. In a large bowl, whisk eggs with melted coconut oil and honey/maple syrup, then mashed bananas, milk, and vanilla. In a separate bowl combine flour, oats, baking powder, baking soda, cinnamon, and salt. Fold dry into wet, then gently stir in chocolate chips. Pour into pan and top with extra oats and chips. Bake 55–60 min until a toothpick comes out clean. Cool 10 min in pan, then transfer to a rack.',
+    ingredients: [
+      { name: 'All-purpose or whole wheat flour', qty: 1.75, unit: 'cups', section: 'Grains & Pasta' },
+      { name: 'Old-fashioned oats', qty: 1, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Baking powder', qty: 1.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Baking soda', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Ground cinnamon', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Salt', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Ripe bananas', qty: 3, unit: '-', section: 'Produce' },
+      { name: 'Eggs', qty: 2, unit: '-', section: 'Protein & Dairy' },
+      { name: 'Honey or maple syrup', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Coconut oil (melted)', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Milk of choice', qty: 0.25, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Vanilla extract', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Chocolate chips', qty: 0.75, unit: 'cup', section: 'Pantry' }
+    ]
+  },
+  { id: 'vinegar-coleslaw', name: 'Vinegar Coleslaw', emoji: '🥬', category: 'lunch',
+    cold: true, kcal: 100,
+    instructions: 'In a large bowl, toss cabbage and carrots with kosher salt and set aside while you prepare the dressing. In a medium bowl, whisk olive oil, apple cider vinegar, dijon, maple syrup, pepper, garlic, scallion, and celery seed. Stir in the optional toasted seeds and bagel seasoning. Pour dressing over the cabbage mixture and toss to coat. Best after sitting 30+ min.',
+    ingredients: [
+      { name: 'Purple cabbage (shredded)', qty: 2, unit: 'cups', section: 'Produce' },
+      { name: 'Green cabbage (shredded)', qty: 5, unit: 'cups', section: 'Produce' },
+      { name: 'Carrots (shredded)', qty: 3, unit: 'cups', section: 'Produce' },
+      { name: 'Kosher salt', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Olive oil', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Apple cider vinegar', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Dijon mustard', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Maple syrup', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Black pepper', qty: 0.75, unit: 'tsp', section: 'Pantry' },
+      { name: 'Garlic', qty: 1, unit: 'clove', section: 'Produce' },
+      { name: 'Scallion', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Celery seed', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Toasted sesame seeds (optional)', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Poppy seeds (optional)', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Everything bagel seasoning (optional)', qty: 1, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'chocolate-chip-granola-bites', name: 'Chocolate Chip Granola Bites', emoji: '🍫', category: 'snack',
+    instructions: 'Mix all ingredients together in a bowl with your hands until the mixture becomes very sticky. Form into small balls (about 12) and store in the fridge. Tip: cook the quinoa first — rinse ½ cup quinoa, cover with 1 cup water, bring to boil then reduce to low and simmer 15 min until liquid is absorbed. Measure ½ cup after cooling.',
+    ingredients: [
+      { name: 'Rolled oats', qty: 0.75, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Unsweetened shredded coconut', qty: 0.66, unit: 'cup', section: 'Pantry' },
+      { name: 'Cooked quinoa', qty: 0.5, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Mini dairy-free chocolate chips', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Almond or peanut butter', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Honey', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Maple syrup', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Sea salt', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Vanilla extract', qty: 0.5, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'best-baked-tofu', name: 'Best Baked Tofu (4 ingredients)', emoji: '🟫', category: 'dinner',
+    kcal: 144,
+    instructions: 'Drain tofu and slice into ½-inch thick strips. Press 30 min between paper towels with a heavy book on top. Preheat oven to 400°F, line a baking sheet with parchment. Cut pressed tofu into 1-inch cubes. Toss with tamari first (let absorb 2 min), then olive oil, then arrowroot starch — coat evenly. Spread on the sheet in a single layer. Bake 25–30 min, flipping halfway, until golden and crispy on the outside.',
+    ingredients: [
+      { name: 'Firm tofu', qty: 1, unit: 'block (16 oz)', section: 'Protein & Dairy' },
+      { name: 'Tamari (or soy sauce)', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Olive oil', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Arrowroot starch (or cornstarch)', qty: 2, unit: 'tbsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'marry-me-butter-beans', name: 'Marry Me Butter Beans (Creamy Tuscan)', emoji: '🫘', category: 'dinner',
+    kcal: 447, chickenAdd: 'grilled chicken for partner',
+    instructions: 'Heat 2 tbsp unsalted butter in a skillet over medium. Add 4 minced garlic cloves with ½ tsp each salt, oregano, crushed red pepper, and smoked paprika, plus ¼ tsp black pepper. Cook 2 min until fragrant. Stir in ½ cup roughly chopped sun-dried tomatoes, ½–1 cup vegetable broth, and 2 cans drained butter beans. Simmer uncovered 5 min on medium. Off heat, stir in 1 cup chopped fresh spinach until wilted, then 1 cup heavy cream, ½ cup grated parmesan, and 2 tbsp chopped fresh basil. Serve with crusty bread or over pasta/rice (use 1 cup broth for a looser sauce).',
+    ingredients: [
+      { name: 'Unsalted butter', qty: 2, unit: 'tbsp', section: 'Protein & Dairy' },
+      { name: 'Garlic', qty: 4, unit: 'cloves', section: 'Produce' },
+      { name: 'Salt', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Dried oregano', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Crushed red pepper flakes', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Smoked paprika', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Black pepper', qty: 0.25, unit: 'tsp', section: 'Pantry' },
+      { name: 'Sun-dried tomatoes', qty: 0.5, unit: 'cup', section: 'Canned & Dry' },
+      { name: 'Vegetable broth', qty: 1, unit: 'cup', section: 'Canned & Dry' },
+      { name: 'Butter beans (lima beans)', qty: 2, unit: 'cans (15 oz)', section: 'Canned & Dry' },
+      { name: 'Baby spinach', qty: 1, unit: 'cup', section: 'Produce' },
+      { name: 'Heavy cream', qty: 1, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Parmesan (grated)', qty: 0.5, unit: 'cup', section: 'Protein & Dairy' },
+      { name: 'Fresh basil', qty: 2, unit: 'tbsp', section: 'Produce' },
+      { name: 'Crusty bread (to serve)', qty: 1, unit: 'loaf', section: 'Grains & Pasta' }
+    ]
+  },
+  { id: 'butternut-pasta-salad', name: 'Warm Butternut, Apple & Goat Cheese Pasta Salad', emoji: '🎃', category: 'lunch',
+    instructions: 'Preheat oven to 425°F. Quarter and core the Gala apple, cut into ½-inch cubes onto a sheet pan. Trim and peel the squash, halve, scoop seeds, and cut into ½-inch cubes; add to the pan. Strip thyme leaves over the apple and squash, drizzle with olive oil, sprinkle salt and pepper. Toss and spread evenly. Roast ~20 min, stirring halfway, until golden and fork-tender. Meanwhile, boil rotini until al dente (8–10 min) and drain. Whisk dressing: olive oil, balsamic vinegar, dijon, salt, pepper. Mince garlic and shallot, add to dressing. Toss roasted veg, pasta, and dressing together. Top with crumbled goat cheese and chopped pecans.',
+    ingredients: [
+      { name: 'Butternut squash', qty: 0.5, unit: 'small', section: 'Produce' },
+      { name: 'Fresh thyme', qty: 0.5, unit: 'small pkg', section: 'Produce' },
+      { name: 'Garlic', qty: 1, unit: 'clove', section: 'Produce' },
+      { name: 'Gala apple', qty: 1, unit: '-', section: 'Produce' },
+      { name: 'Rotini pasta', qty: 5, unit: 'oz', section: 'Grains & Pasta' },
+      { name: 'Pepitas', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Goat cheese log', qty: 0.5, unit: 'log (4 oz)', section: 'Protein & Dairy' },
+      { name: 'Pecan halves', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Shallot', qty: 0.5, unit: '-', section: 'Produce' },
+      { name: 'Dijon mustard', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Balsamic vinegar', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Extra-virgin olive oil', qty: 5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Salt', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Black pepper', qty: 0.25, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'black-bean-brownies', name: 'Grain-Free High Protein Brownies', emoji: '🍫', category: 'snack',
+    instructions: 'Preheat oven to 350°F. Rinse and drain 1 (15 oz) can of black beans. Pulse beans in a food processor until smooth, scraping the sides. Add 3 large eggs, 4 tbsp melted butter, and 1 tsp vanilla; blend until combined. In a separate bowl, whisk dry: ½ cup oats, ½ cup cocoa powder, 1 tsp baking powder, ¼ tsp salt; fold in optional 4 chopped dates. Combine wet and dry, then fold in ½ cup chocolate chips. Line an 8x8 pan with parchment. Bake 20–25 min until a toothpick comes out almost clean. Cool fully before slicing.',
+    ingredients: [
+      { name: 'Black beans', qty: 1, unit: 'can (15 oz)', section: 'Canned & Dry' },
+      { name: 'Eggs', qty: 3, unit: '-', section: 'Protein & Dairy' },
+      { name: 'Butter (melted)', qty: 4, unit: 'tbsp', section: 'Protein & Dairy' },
+      { name: 'Vanilla extract', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Rolled oats', qty: 0.5, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Cocoa powder', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Baking powder', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'Salt', qty: 0.25, unit: 'tsp', section: 'Pantry' },
+      { name: 'Medjool dates (optional)', qty: 4, unit: '-', section: 'Produce' },
+      { name: 'Chocolate chips', qty: 0.5, unit: 'cup', section: 'Pantry' }
+    ]
+  },
+  { id: 'pain-aux-bananes', name: 'Pain aux Bananes (French Banana Bread)', emoji: '🍞', category: 'breakfast',
+    instructions: 'Preheat oven to 350°F and grease a loaf pan. Cream ½ cup shortening with ¾ cup sugar. Beat in 2 eggs and 1 tsp vanilla. In a separate bowl, whisk 1¼ cups flour with ½ tsp baking soda and ¼ tsp salt. Alternate adding dry mix and 1 cup mashed bananas to the creamed mixture, mixing gently. Fold in ½ cup chocolate chips. Pour into the pan. For topping (optional): mix 4 tsp sugar + ¼ tsp cinnamon + ½ tsp vanilla + ¼ cup chopped nuts and sprinkle on top. Bake 40–45 min until a toothpick comes out clean. Note: half the recipe makes 2 small loaves (full recipe uses ~2½ cups mashed banana).',
+    ingredients: [
+      { name: 'Shortening', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Sugar', qty: 0.75, unit: 'cup', section: 'Pantry' },
+      { name: 'Eggs', qty: 2, unit: '-', section: 'Protein & Dairy' },
+      { name: 'Vanilla extract', qty: 1, unit: 'tsp', section: 'Pantry' },
+      { name: 'All-purpose flour', qty: 1.25, unit: 'cups', section: 'Grains & Pasta' },
+      { name: 'Baking soda', qty: 0.5, unit: 'tsp', section: 'Pantry' },
+      { name: 'Salt', qty: 0.25, unit: 'tsp', section: 'Pantry' },
+      { name: 'Mashed bananas', qty: 1, unit: 'cup', section: 'Produce' },
+      { name: 'Chocolate chips', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Chopped nuts (optional topping)', qty: 0.25, unit: 'cup', section: 'Pantry' },
+      { name: 'Ground cinnamon', qty: 0.25, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'no-bake-energy-bites', name: 'No-Bake Energy Bites', emoji: '⚡', category: 'snack',
+    instructions: 'Stir all ingredients together in a large mixing bowl until thoroughly combined. Cover and chill 1–2 hours (this helps the mixture stick together). Roll into 1-inch balls, about 20–25. Refrigerate in a sealed container up to 1 week, or freeze up to 3 months.',
+    ingredients: [
+      { name: 'Old-fashioned oats', qty: 1, unit: 'cup', section: 'Grains & Pasta' },
+      { name: 'Shredded coconut', qty: 0.66, unit: 'cup', section: 'Pantry' },
+      { name: 'Creamy peanut butter', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Ground flaxseed', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Semi-sweet chocolate chips', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Honey', qty: 0.33, unit: 'cup', section: 'Pantry' },
+      { name: 'Chia seeds (optional)', qty: 1, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Vanilla extract', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'pb-protein-bars', name: "Crunchy Peanut Butter Protein Bars", emoji: '🥜', category: 'snack',
+    instructions: 'Add peanut butter and maple syrup to a pot on low heat and mix until smooth. Stir in protein powder. Mix in crispy rice cereal until fully coated. In a separate bowl, melt chocolate chips with coconut oil. Line an 8x8 baking pan with parchment, spread the peanut butter mixture evenly. Top with melted chocolate. Freeze 20 min until set, then cut into bars.',
+    ingredients: [
+      { name: 'Vanilla or chocolate protein powder', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Creamy natural peanut butter', qty: 1, unit: 'cup', section: 'Pantry' },
+      { name: 'Maple syrup', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Crispy rice cereal', qty: 2, unit: 'cups', section: 'Grains & Pasta' },
+      { name: 'Plant-based chocolate chips', qty: 0.5, unit: 'cup', section: 'Pantry' },
+      { name: 'Coconut oil', qty: 1, unit: 'tsp', section: 'Pantry' }
+    ]
+  },
+  { id: 'provencal-marinade', name: 'Provençal Marinade', emoji: '🌿', category: 'sauce',
+    notes: 'Old standby for chicken, pork, or roasted vegetables. Vary the herbs — rosemary alone is wonderful.',
+    instructions: 'Combine all ingredients in a glass dish suitable for marinating. Salt and pepper to taste. Add protein or veggies and let marinate at least 1 hour, ideally overnight.',
+    ingredients: [
+      { name: 'Dijon mustard', qty: 0.75, unit: 'cup', section: 'Pantry' },
+      { name: 'Garlic (minced)', qty: 2, unit: 'cloves', section: 'Produce' },
+      { name: 'Balsamic vinegar', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Lemon juice', qty: 2, unit: 'tbsp', section: 'Produce' },
+      { name: 'Olive oil', qty: 2, unit: 'tbsp', section: 'Pantry' },
+      { name: 'Herbes de Provence', qty: 1, unit: 'tbsp', section: 'Pantry' }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+const STORAGE_KEY = 'fitnessPlan_v1';
+let S = {};
+
+function defaultState() {
+  return {
+    version: 1,
+    workoutLog: {},
+    exerciseSettings: {
+      push: WORKOUTS.push.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' })),
+      pull: WORKOUTS.pull.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' })),
+      legs: WORKOUTS.legs.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' }))
+    },
+    exerciseNameEdits: {},
+    mealLog: {},
+    selectedMeals: RECIPES.map(r => r.id),
+    groceryChecked: {},
+    hideChecked: false,
+    customGroceryItems: [],
+    customRecipes: [],
+    recipeEdits: {},
+    mealPlanEdits: {}
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { S = defaultState(); return; }
+    const saved = JSON.parse(raw);
+    if (!saved || saved.version !== 1) { S = defaultState(); return; }
+    S = saved;
+    // Backfill missing exerciseSettings for any day
+    for (const day of ['push','pull','legs']) {
+      if (!S.exerciseSettings || !S.exerciseSettings[day]) {
+        if (!S.exerciseSettings) S.exerciseSettings = {};
+        S.exerciseSettings[day] = WORKOUTS[day].exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight }));
+      }
+    }
+    if (!S.customRecipes) S.customRecipes = [];
+    if (!S.customGroceryItems) S.customGroceryItems = [];
+    if (!S.mealLog) S.mealLog = {};
+    if (!S.recipeEdits) S.recipeEdits = {};
+    if (!S.mealPlanEdits) S.mealPlanEdits = {};
+    if (!S.exerciseNameEdits) S.exerciseNameEdits = {};
+    // Backfill notes field on exerciseSettings
+    for (const day of ['push','pull','legs']) {
+      if (S.exerciseSettings && S.exerciseSettings[day]) {
+        S.exerciseSettings[day].forEach(e => { if (e.notes === undefined) e.notes = ''; });
+      }
+    }
+  } catch(e) { S = defaultState(); }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e) {}
+}
+
+function getToday() { return new Date().toISOString().slice(0,10); }
+
+// ═══════════════════════════════════════
+//  WORKOUTS
+// ═══════════════════════════════════════
+function renderWorkouts() {
+  const today = getToday();
+  for (const day of ['push','pull','legs']) {
+    const w = WORKOUTS[day];
+    const log = (S.workoutLog[today] || {})[day] || [];
+    const settings = S.exerciseSettings[day];
+    const container = document.getElementById('workout-' + day);
+    if (!container) continue;
+
+    const done = log.length, total = w.exercises.length;
+    const pill = document.getElementById('pill-' + day);
+    if (pill) {
+      pill.textContent = done === total && total > 0 ? '✓ Done!' : done + '/' + total;
+      pill.className = 'progress-pill' + (done === total && total > 0 ? ' complete' : '');
+    }
+
+    container.innerHTML = w.exercises.map((ex, i) => {
+      const checked = log.includes(i);
+      const s = settings[i];
+      const nameKey = day + '-' + i;
+      const displayName = (S.exerciseNameEdits && S.exerciseNameEdits[nameKey]) || ex.name;
+      const notes = s.notes || '';
+      return '<div class="cb-row' + (checked ? ' done' : '') + '">' +
+        '<label style="display:flex;align-items:center;cursor:pointer">' +
+          '<input type="checkbox" class="ex-cb"' + (checked ? ' checked' : '') + ' data-day="' + day + '" data-idx="' + i + '">' +
+        '</label>' +
+        '<span class="ex-name edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="name">' + esc(displayName) + (ex.isNew ? ' <span class="tag-new">NEW</span>' : '') + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="sets">' + esc(s.sets) + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="reps">' + esc(s.reps) + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="weight">' + esc(s.weight) + '</span>' +
+        '<div class="ex-notes edit-cell' + (notes ? '' : ' empty') + '" data-day="' + day + '" data-idx="' + i + '" data-field="notes">' + (notes ? esc(notes) : '+ add notes (form cues, modifications, how it felt)') + '</div>' +
+        '</div>';
+    }).join('') + '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>';
+  }
+}
+
+function toggleExercise(day, idx) {
+  const today = getToday();
+  if (!S.workoutLog[today]) S.workoutLog[today] = {};
+  if (!S.workoutLog[today][day]) S.workoutLog[today][day] = [];
+  const arr = S.workoutLog[today][day];
+  const pos = arr.indexOf(idx);
+  if (pos >= 0) arr.splice(pos, 1); else arr.push(idx);
+  saveState();
+  renderWorkouts();
+}
+
+function startEditCell(el) {
+  if (el.querySelector('input, textarea')) return;
+  const day = el.dataset.day, idx = parseInt(el.dataset.idx), field = el.dataset.field;
+  const nameKey = day + '-' + idx;
+  let current;
+  if (field === 'name') {
+    current = (S.exerciseNameEdits && S.exerciseNameEdits[nameKey]) || WORKOUTS[day].exercises[idx].name;
+  } else if (field === 'notes') {
+    current = S.exerciseSettings[day][idx].notes || '';
+  } else {
+    current = S.exerciseSettings[day][idx][field];
+  }
+
+  const useTextarea = (field === 'notes');
+  const inp = document.createElement(useTextarea ? 'textarea' : 'input');
+  if (!useTextarea) inp.type = 'text';
+  inp.value = current;
+  inp.className = useTextarea ? 'meal-edit-textarea' : 'edit-input';
+  if (field === 'sets' || field === 'weight') inp.inputMode = 'decimal';
+  if (useTextarea) {
+    el.innerHTML = '';
+    el.appendChild(inp);
+  } else {
+    el.replaceWith(inp);
+  }
+  inp.focus();
+  if (!useTextarea) inp.select();
+
+  let committed = false;
+  function commit() {
+    if (committed) return; committed = true;
+    const val = inp.value.trim();
+    if (field === 'name') {
+      const original = WORKOUTS[day].exercises[idx].name;
+      if (!val || val === original) {
+        if (S.exerciseNameEdits) delete S.exerciseNameEdits[nameKey];
+      } else {
+        if (!S.exerciseNameEdits) S.exerciseNameEdits = {};
+        S.exerciseNameEdits[nameKey] = val;
+      }
+    } else if (field === 'notes') {
+      S.exerciseSettings[day][idx].notes = val;
+    } else {
+      S.exerciseSettings[day][idx][field] = val || current;
+    }
+    saveState(); renderWorkouts();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !useTextarea) inp.blur();
+    if (e.key === 'Escape') { inp.value = current; inp.blur(); }
+  });
+}
+
+// ═══════════════════════════════════════
+//  MEAL CHECKBOXES
+// ═══════════════════════════════════════
+function initMealCheckboxes() {
+  const today = getToday();
+  if (!S.mealLog) S.mealLog = {};
+  const log = S.mealLog[today] || {};
+
+  document.querySelectorAll('.meals-list').forEach((list, dayIdx) => {
+    list.querySelectorAll('.meal-row:not(.no-cb)').forEach((row, rowIdx) => {
+      if (row.querySelector('.meal-cb')) return; // already added
+      const key = dayIdx + '-' + rowIdx;
+      const checked = !!log[key];
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.className = 'meal-cb'; cb.checked = checked;
+      cb.title = 'Mark as eaten';
+      if (checked) row.classList.add('meal-done');
+      cb.addEventListener('change', () => {
+        if (!S.mealLog[today]) S.mealLog[today] = {};
+        S.mealLog[today][key] = cb.checked;
+        row.classList.toggle('meal-done', cb.checked);
+        saveState();
+      });
+      row.insertBefore(cb, row.firstChild);
+    });
+  });
+}
+
+// ═══════════════════════════════════════
+//  MEAL PLAN EDITING
+// ═══════════════════════════════════════
+function mealKey(list, rowIdx) {
+  return (list.id || 'meals') + '-' + rowIdx;
+}
+
+function parseKcal(text) {
+  const m = (text || '').match(/~?\s*([0-9][0-9,]*)\s*kcal/i);
+  return m ? parseInt(m[1].replace(/,/g, ''), 10) : null;
+}
+
+function extractNumbers(s) {
+  const fracMap = { '½': 0.5, '⅓': 0.333, '¼': 0.25, '⅔': 0.667, '¾': 0.75, '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875 };
+  const tokens = (s || '').match(/\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?|[½⅓¼⅔¾⅛⅜⅝⅞]/g) || [];
+  return tokens.map(t => {
+    if (fracMap[t] != null) return fracMap[t];
+    if (t.includes('/')) { const [a, b] = t.split('/').map(parseFloat); return b ? a / b : null; }
+    return parseFloat(t);
+  }).filter(n => n != null && !isNaN(n));
+}
+
+function inferScaleRatio(oldText, newText) {
+  const a = extractNumbers(oldText), b = extractNumbers(newText);
+  if (a.length === 0 || a.length !== b.length) return null;
+  let diffIdx = -1, diffCount = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (Math.abs(a[i] - b[i]) > 0.0001) { diffIdx = i; diffCount++; }
+  }
+  if (diffCount !== 1 || a[diffIdx] === 0) return null;
+  return b[diffIdx] / a[diffIdx];
+}
+
+function recomputeDayTotal(list) {
+  const totalEl = list.querySelector('.meal-total');
+  if (!totalEl) return;
+  let sum = 0;
+  list.querySelectorAll('.meal-row:not(.no-cb) .meal-cal').forEach(c => {
+    const k = parseKcal(c.textContent);
+    if (k != null) sum += k;
+  });
+  if (sum === 0) return;
+  const formatted = '~' + sum.toLocaleString('en-US') + ' kcal';
+  if (/~?\s*[0-9][0-9,]*\s*kcal/i.test(totalEl.textContent)) {
+    totalEl.textContent = totalEl.textContent.replace(/~?\s*[0-9][0-9,]*\s*kcal/i, formatted);
+  } else {
+    totalEl.textContent = formatted + ' · ' + totalEl.textContent;
+  }
+}
+
+function applyMealEdits() {
+  document.querySelectorAll('.meals-list').forEach(list => {
+    list.querySelectorAll('.meal-row').forEach((row, rowIdx) => {
+      const key = mealKey(list, rowIdx);
+      const ed = S.mealPlanEdits && S.mealPlanEdits[key];
+      if (!ed) return;
+      const desc = row.querySelector('.meal-desc');
+      const cal = row.querySelector('.meal-cal');
+      if (desc && ed.desc != null) desc.textContent = ed.desc;
+      if (cal && ed.cal != null) cal.textContent = ed.cal;
+    });
+    recomputeDayTotal(list);
+  });
+}
+
+function initMealEditing() {
+  document.querySelectorAll('.meals-list').forEach(list => {
+    list.querySelectorAll('.meal-row').forEach((row, rowIdx) => {
+      const desc = row.querySelector('.meal-desc');
+      const cal = row.querySelector('.meal-cal');
+      const isTotalRow = row.classList.contains('no-cb') && desc && desc.classList.contains('meal-total');
+      if (desc && !isTotalRow) {
+        desc.classList.add('editable');
+        desc.addEventListener('click', () => startMealEdit(list, rowIdx, 'desc', desc));
+      }
+      if (cal && !isTotalRow) {
+        cal.classList.add('editable');
+        cal.addEventListener('click', () => startMealEdit(list, rowIdx, 'cal', cal));
+      }
+    });
+  });
+}
+
+function startMealEdit(list, rowIdx, field, el) {
+  if (el.querySelector('.meal-edit-input, .meal-edit-textarea')) return;
+  const current = el.textContent;
+  const useTextarea = (field === 'desc');
+  const inp = document.createElement(useTextarea ? 'textarea' : 'input');
+  if (!useTextarea) inp.type = 'text';
+  inp.value = current;
+  inp.className = useTextarea ? 'meal-edit-textarea' : 'meal-edit-input';
+  el.innerHTML = '';
+  el.appendChild(inp);
+  inp.focus();
+  if (!useTextarea) inp.select();
+
+  let committed = false;
+  function commit() {
+    if (committed) return; committed = true;
+    let val = inp.value.trim();
+    if (field === 'cal' && val) {
+      const bareNum = val.match(/^([0-9][0-9,]*)$/);
+      if (bareNum) val = '~' + bareNum[1] + ' kcal';
+    }
+    const key = mealKey(list, rowIdx);
+    if (!S.mealPlanEdits) S.mealPlanEdits = {};
+    if (!S.mealPlanEdits[key]) S.mealPlanEdits[key] = {};
+    S.mealPlanEdits[key][field] = val;
+    el.textContent = val;
+
+    if (field === 'desc' && val !== current) {
+      const ratio = inferScaleRatio(current, val);
+      const calEl = el.closest('.meal-row').querySelector('.meal-cal');
+      if (ratio && ratio !== 1 && calEl) {
+        const oldCal = parseKcal(calEl.textContent);
+        if (oldCal != null) {
+          const newCal = Math.round(oldCal * ratio);
+          const newCalText = '~' + newCal.toLocaleString('en-US') + ' kcal';
+          calEl.textContent = newCalText;
+          S.mealPlanEdits[key].cal = newCalText;
+        }
+      }
+    }
+
+    saveState();
+    if (field === 'cal' || field === 'desc') recomputeDayTotal(list);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !useTextarea) inp.blur();
+    if (e.key === 'Escape') { inp.value = current; inp.blur(); }
+  });
+}
+
+// ═══════════════════════════════════════
+//  RECIPES
+// ═══════════════════════════════════════
+function renderRecipes() {
+  const container = document.getElementById('recipes-container');
+  if (!container) return;
+
+  const selCount = S.selectedMeals.length;
+  const banner = document.getElementById('recipes-banner');
+  if (banner) banner.textContent = selCount + ' recipe' + (selCount !== 1 ? 's' : '') + ' selected → grocery list updated';
+
+  const cats = [
+    { label: 'Dinners', ids: ['red-lentil-dal','black-bean-tacos','sheet-pan-fajitas','sheet-pan-gnocchi','sheet-pan-halloumi','white-bean-pasta','pesto-pasta','pasta-e-ceci','best-baked-tofu','marry-me-butter-beans'] },
+    { label: 'Lunches & Salads', ids: ['chickpea-salad','greek-orzo-salad','white-bean-herb-salad','caprese-pasta-salad','vinegar-coleslaw','butternut-pasta-salad'] },
+    { label: 'Breakfasts', ids: ['overnight-oats','veggie-frittata','oatmeal-banana-bread','pain-aux-bananes'] },
+    { label: 'Snacks & Desserts', ids: ['snickerdoodle-protein-balls','chocolate-chip-granola-bites','black-bean-brownies','no-bake-energy-bites','pb-protein-bars'] },
+    { label: 'Sauces & Marinades', ids: ['provencal-marinade'] }
+  ];
+
+  let html = '';
+  for (const cat of cats) {
+    html += '<p class="section-label">' + cat.label + '</p><div class="recipe-grid">';
+    for (const id of cat.ids) {
+      const r = RECIPES.find(x => x.id === id);
+      if (r) html += recipeCardHTML(r, S.selectedMeals.includes(id), false);
+    }
+    html += '</div>';
+  }
+
+  if (S.customRecipes.length > 0) {
+    html += '<p class="section-label">My Recipes</p><div class="recipe-grid">';
+    for (const r of S.customRecipes) {
+      html += recipeCardHTML(r, S.selectedMeals.includes(r.id), true);
+    }
+    html += '</div>';
+  } else {
+    html += '<p class="section-label">My Recipes</p><p class="empty-recipes">Your saved recipes will appear here. Tap "+ Add My Recipe" to get started.</p>';
+  }
+
+  container.innerHTML = html;
+}
+
+function recipeCardHTML(base, selected, isCustom) {
+  const r = getEffectiveRecipe(base);
+  const isEdited = !isCustom && S.recipeEdits && S.recipeEdits[r.id];
+
+  const tags = [];
+  if (r.cold) tags.push('<span class="tag-cold">cold</span>');
+  if (r.chickenAdd) tags.push('<span class="tag-chicken">+ ' + esc(r.chickenAdd) + '</span>');
+  if (r.kcal) tags.push('<span style="font-size:.75rem;color:#9d8ec7">~' + r.kcal + ' kcal</span>');
+  if (isEdited) tags.push('<span class="recipe-edited-tag" title="You\'ve edited this recipe — click ↺ to reset">edited</span>');
+
+  let btnsHtml = '<div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">';
+  btnsHtml += '<button class="meal-toggle' + (selected ? ' selected' : '') + '" onclick="toggleMeal(\'' + r.id + '\')">' + (selected ? '✓ In week' : '+ Add to week') + '</button>';
+  btnsHtml += '<button class="icon-btn" onclick="openRecipeModal(\'' + r.id + '\')" title="Edit">✏️</button>';
+  if (isEdited) btnsHtml += '<button class="icon-btn" onclick="resetRecipeEdits(\'' + r.id + '\')" title="Reset to original">↺</button>';
+  if (isCustom) btnsHtml += '<button class="icon-btn" onclick="deleteCustomRecipe(\'' + r.id + '\')" title="Delete">🗑️</button>';
+  btnsHtml += '</div>';
+
+  const ingHtml = (r.ingredients && r.ingredients.length)
+    ? '<p class="recipe-section-title">Ingredients</p><ul class="recipe-ing-list">' +
+        r.ingredients.map(i => '<li>' + esc(fmtIng(i)) + '</li>').join('') +
+      '</ul>'
+    : '';
+
+  const instHtml = r.instructions
+    ? '<p class="recipe-section-title">Instructions</p><p class="recipe-instructions">' + esc(r.instructions) + '</p>'
+    : '';
+
+  return '<div class="recipe-card">' +
+    '<div class="recipe-card-header"><h4>' + (r.emoji || '🍴') + ' ' + esc(r.name) + '</h4>' + btnsHtml + '</div>' +
+    (r.notes ? '<p style="font-size:.8rem;color:#6d28d9;margin-bottom:.3rem;font-style:italic">' + esc(r.notes) + '</p>' : '') +
+    ingHtml +
+    instHtml +
+    (tags.length ? '<div class="recipe-tags">' + tags.join('') + '</div>' : '') +
+    '</div>';
+}
+
+function toggleMeal(id) {
+  const idx = S.selectedMeals.indexOf(id);
+  if (idx >= 0) S.selectedMeals.splice(idx, 1); else S.selectedMeals.push(id);
+  saveState(); renderRecipes(); renderGrocery();
+}
+
+// ═══════════════════════════════════════
+//  GROCERY
+// ═══════════════════════════════════════
+function fmtQty(q) {
+  const m = { 0.25:'¼', 0.33:'⅓', 0.5:'½', 0.67:'⅔', 0.75:'¾' };
+  if (m[q]) return m[q];
+  if (Number.isInteger(q)) return String(q);
+  const w = Math.floor(q), f = Math.round((q - w) * 100) / 100;
+  if (w > 0 && m[f]) return w + m[f];
+  return q % 1 === 0 ? String(q) : q.toFixed(1);
+}
+
+function fmtIng(ing) {
+  const unit = (!ing.unit || ing.unit === '-') ? 'x' : ing.unit;
+  return ing.name + ' (' + fmtQty(ing.qty) + (unit === 'x' ? '' : ' ') + unit + ')';
+}
+
+function normalizeIngName(name) {
+  return name.toLowerCase()
+    .replace(/\s*\([^)]*\)\s*/g, ' ')
+    .replace(/\bextra[- ]?virgin\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeUnit(unit) {
+  if (!unit || unit === '-') return '-';
+  const u = unit.toLowerCase().trim();
+  const m = {
+    'cup':'cup','cups':'cup',
+    'tablespoon':'tbsp','tablespoons':'tbsp','tbsp':'tbsp','tbsps':'tbsp',
+    'teaspoon':'tsp','teaspoons':'tsp','tsp':'tsp','tsps':'tsp',
+    'can':'can','cans':'can',
+    'clove':'clove','cloves':'clove',
+    'pint':'pint','pints':'pint',
+    'ounce':'oz','ounces':'oz','oz':'oz',
+    'lb':'lb','lbs':'lb','pound':'lb','pounds':'lb',
+    'piece':'piece','pieces':'piece',
+    'stalk':'stalk','stalks':'stalk',
+    'bunch':'bunch','bunches':'bunch',
+    'head':'head','heads':'head',
+    'jar':'jar','jars':'jar',
+    'carton':'carton','cartons':'carton',
+    'block':'block','blocks':'block',
+    'loaf':'loaf','loaves':'loaf'
+  };
+  return m[u] || u;
+}
+
+function getEffectiveRecipe(r) {
+  if (!r) return r;
+  const ed = S.recipeEdits && S.recipeEdits[r.id];
+  if (!ed) return r;
+  return Object.assign({}, r, ed);
+}
+
+function isBuiltinRecipe(id) {
+  return RECIPES.some(r => r.id === id);
+}
+
+function computeGrocery() {
+  const merged = {};
+  const allR = [...RECIPES, ...S.customRecipes];
+  for (const id of S.selectedMeals) {
+    const base = allR.find(x => x.id === id);
+    const r = getEffectiveRecipe(base);
+    if (!r || !r.ingredients) continue;
+    for (const ing of r.ingredients) {
+      const normName = normalizeIngName(ing.name);
+      const normUnit = normalizeUnit(ing.unit);
+      const key = normName + '||' + normUnit + '||' + ing.section;
+      if (merged[key]) {
+        merged[key].qty += ing.qty;
+        if (ing.name.length > merged[key].name.length) merged[key].name = ing.name;
+      } else {
+        merged[key] = Object.assign({}, ing, { unit: normUnit });
+      }
+    }
+  }
+  const sections = {};
+  for (const item of Object.values(merged)) {
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push(item);
+  }
+  return sections;
+}
+
+function renderGrocery() {
+  const container = document.getElementById('grocery-container');
+  if (!container) return;
+
+  const computed = computeGrocery();
+  let totalItems = 0, checkedCount = 0;
+
+  // Count all items
+  for (const sec of SECTION_ORDER) {
+    const items = computed[sec] || [];
+    const custom = S.customGroceryItems.filter(i => i.section === sec);
+    for (const item of [...items, ...custom]) {
+      totalItems++;
+      if (S.groceryChecked[fmtIng(item)]) checkedCount++;
+    }
+  }
+
+  const hideChecked = S.hideChecked || false;
+
+  let html = '<div class="grocery-toolbar">' +
+    '<span class="grocery-count">' + checkedCount + ' of ' + totalItems + ' items checked</span>' +
+    '<div style="display:flex;gap:.4rem">' +
+      '<button class="toolbar-btn" onclick="toggleHideChecked()">' + (hideChecked ? 'Show all' : 'Hide checked') + '</button>' +
+      '<button class="toolbar-btn danger" onclick="newShoppingTrip()">New trip 🛒</button>' +
+    '</div></div>';
+
+  html += '<div class="grocery-grid-layout">';
+  for (const sec of SECTION_ORDER) {
+    const items = (computed[sec] || []).sort((a,b) => a.name.localeCompare(b.name));
+    const custom = S.customGroceryItems.filter(i => i.section === sec);
+    const all = [...items, ...custom];
+    const visible = hideChecked ? all.filter(i => !S.groceryChecked[fmtIng(i)]) : all;
+    if (visible.length === 0) continue;
+
+    html += '<div class="grocery-section"><h3>' + sec + '</h3><ul class="grocery-list">';
+    for (const item of all) {
+      const label = fmtIng(item);
+      const chk = S.groceryChecked[label] || false;
+      if (hideChecked && chk) continue;
+      const isC = !!item.id;
+      const safeLabel = label.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      html += '<li class="grocery-item' + (chk ? ' checked' : '') + '">' +
+        '<label><input type="checkbox"' + (chk ? ' checked' : '') + ' onchange="toggleGrocery(\'' + safeLabel + '\')">' +
+        '<span>' + esc(label) + '</span></label>' +
+        (isC ? '<button class="remove-btn" onclick="removeCustomGrocery(\'' + item.id + '\')" title="Remove">×</button>' : '') +
+        '</li>';
+    }
+    html += '</ul></div>';
+  }
+  html += '</div>';
+
+  // Other custom items
+  const other = S.customGroceryItems.filter(i => !SECTION_ORDER.includes(i.section));
+  if (other.length > 0) {
+    html += '<div class="grocery-section"><h3>Other</h3><ul class="grocery-list">';
+    for (const item of other) {
+      const chk = S.groceryChecked[item.name] || false;
+      if (hideChecked && chk) continue;
+      html += '<li class="grocery-item' + (chk ? ' checked' : '') + '">' +
+        '<label><input type="checkbox"' + (chk ? ' checked' : '') + ' onchange="toggleGrocery(\'' + esc(item.name) + '\')">' +
+        '<span>' + esc(item.name) + '</span></label>' +
+        '<button class="remove-btn" onclick="removeCustomGrocery(\'' + item.id + '\')" title="Remove">×</button>' +
+        '</li>';
+    }
+    html += '</ul></div>';
+  }
+
+  html += '<button class="add-item-btn" onclick="showAddItemForm()">+ Add item manually</button>' +
+    '<div id="add-item-form" class="add-item-form hidden">' +
+      '<input id="add-item-name" type="text" placeholder="Item name" autocomplete="off">' +
+      '<select id="add-item-section">' +
+        ING_SECTIONS.map(s => '<option value="' + s + '">' + s + '</option>').join('') +
+      '</select>' +
+      '<div class="add-item-form-btns">' +
+        '<button class="btn-secondary" style="flex:1;padding:.5rem" onclick="hideAddItemForm()">Cancel</button>' +
+        '<button class="btn-primary" style="flex:1;padding:.5rem" onclick="confirmAddItem()">Add</button>' +
+      '</div>' +
+    '</div>';
+
+  container.innerHTML = html;
+}
+
+function toggleGrocery(label) {
+  S.groceryChecked[label] = !S.groceryChecked[label];
+  saveState(); renderGrocery();
+}
+
+function toggleHideChecked() {
+  S.hideChecked = !S.hideChecked;
+  saveState(); renderGrocery();
+}
+
+function newShoppingTrip() {
+  if (confirm('Clear all checked items? Your selected recipes stay the same.')) {
+    S.groceryChecked = {};
+    saveState(); renderGrocery();
+  }
+}
+
+function removeCustomGrocery(id) {
+  S.customGroceryItems = S.customGroceryItems.filter(i => i.id !== id);
+  saveState(); renderGrocery();
+}
+
+function showAddItemForm() {
+  const f = document.getElementById('add-item-form');
+  if (f) { f.classList.remove('hidden'); f.querySelector('input').focus(); }
+}
+function hideAddItemForm() {
+  const f = document.getElementById('add-item-form');
+  if (f) f.classList.add('hidden');
+}
+function confirmAddItem() {
+  const nameEl = document.getElementById('add-item-name');
+  const secEl = document.getElementById('add-item-section');
+  const name = (nameEl ? nameEl.value.trim() : '');
+  if (!name) { if (nameEl) nameEl.focus(); return; }
+  const section = secEl ? secEl.value : 'Pantry';
+  S.customGroceryItems.push({ id: 'gi-' + Date.now(), name, section });
+  saveState(); renderGrocery();
+}
+
+// ═══════════════════════════════════════
+//  CUSTOM RECIPE MODAL
+// ═══════════════════════════════════════
+let editingRecipeId = null;
+
+function openRecipeModal(recipeId) {
+  editingRecipeId = recipeId || null;
+  const modal = document.getElementById('recipe-modal');
+  const title = document.getElementById('modal-title');
+  if (title) title.textContent = recipeId ? 'Edit Recipe' : 'Add My Recipe';
+
+  if (recipeId) {
+    const builtin = RECIPES.find(x => x.id === recipeId);
+    const custom = S.customRecipes.find(x => x.id === recipeId);
+    const r = builtin ? getEffectiveRecipe(builtin) : custom;
+    if (r) {
+      document.getElementById('rf-name').value = r.name || '';
+      document.getElementById('rf-emoji').value = r.emoji || '';
+      document.getElementById('rf-category').value = r.category || 'dinner';
+      document.getElementById('rf-kcal').value = r.kcal || '';
+      document.getElementById('rf-instructions').value = r.instructions || '';
+      renderIngRows(r.ingredients && r.ingredients.length ? r.ingredients : [{ name:'', qty:'', unit:'', section:'Produce' }]);
+    }
+  } else {
+    document.getElementById('rf-name').value = '';
+    document.getElementById('rf-emoji').value = '';
+    document.getElementById('rf-category').value = 'dinner';
+    document.getElementById('rf-kcal').value = '';
+    document.getElementById('rf-instructions').value = '';
+    renderIngRows([{ name:'', qty:'', unit:'', section:'Produce' }]);
+  }
+  modal.classList.add('open');
+}
+
+function closeRecipeModal() {
+  document.getElementById('recipe-modal').classList.remove('open');
+  editingRecipeId = null;
+}
+
+function renderIngRows(ings) {
+  const c = document.getElementById('ingredient-rows');
+  if (!c) return;
+  c.innerHTML = ings.map((ing,i) =>
+    '<div class="ing-row">' +
+      '<input class="ing-name" type="text" placeholder="e.g. Chickpeas" value="' + esc(ing.name || '') + '">' +
+      '<input class="ing-qty" type="text" placeholder="1" value="' + esc(String(ing.qty || '')) + '" inputmode="decimal">' +
+      '<input class="ing-unit" type="text" placeholder="can" value="' + esc(ing.unit === '-' ? '' : (ing.unit || '')) + '">' +
+      '<select class="ing-section">' + ING_SECTIONS.map(s => '<option value="' + s + '"' + (ing.section === s ? ' selected' : '') + '>' + s + '</option>').join('') + '</select>' +
+      '<button type="button" class="remove-btn" onclick="removeIngRow(this)" title="Remove">×</button>' +
+    '</div>'
+  ).join('');
+}
+
+function addIngRow() {
+  const c = document.getElementById('ingredient-rows');
+  const div = document.createElement('div');
+  div.className = 'ing-row';
+  div.innerHTML = '<input class="ing-name" type="text" placeholder="e.g. Pasta">' +
+    '<input class="ing-qty" type="text" placeholder="1" inputmode="decimal">' +
+    '<input class="ing-unit" type="text" placeholder="cup">' +
+    '<select class="ing-section">' + ING_SECTIONS.map(s => '<option value="' + s + '">' + s + '</option>').join('') + '</select>' +
+    '<button type="button" class="remove-btn" onclick="removeIngRow(this)">×</button>';
+  c.appendChild(div);
+  div.querySelector('.ing-name').focus();
+}
+
+function removeIngRow(btn) {
+  const rows = document.querySelectorAll('#ingredient-rows .ing-row');
+  if (rows.length > 1) btn.closest('.ing-row').remove();
+}
+
+function saveRecipe() {
+  const name = (document.getElementById('rf-name').value || '').trim();
+  if (!name) { alert('Please enter a recipe name.'); document.getElementById('rf-name').focus(); return; }
+
+  const ingredients = [];
+  document.querySelectorAll('#ingredient-rows .ing-row').forEach(row => {
+    const n = row.querySelector('.ing-name').value.trim();
+    const q = row.querySelector('.ing-qty').value.trim();
+    const u = row.querySelector('.ing-unit').value.trim();
+    const s = row.querySelector('.ing-section').value;
+    if (n) ingredients.push({ name: n, qty: parseFloat(q) || 1, unit: u || '-', section: s });
+  });
+
+  const fields = {
+    name,
+    emoji: (document.getElementById('rf-emoji').value.trim() || '🍴'),
+    category: document.getElementById('rf-category').value,
+    kcal: parseInt(document.getElementById('rf-kcal').value) || 0,
+    instructions: (document.getElementById('rf-instructions').value || '').trim(),
+    ingredients
+  };
+
+  if (editingRecipeId && isBuiltinRecipe(editingRecipeId)) {
+    if (!S.recipeEdits) S.recipeEdits = {};
+    S.recipeEdits[editingRecipeId] = fields;
+  } else if (editingRecipeId) {
+    const idx = S.customRecipes.findIndex(r => r.id === editingRecipeId);
+    if (idx >= 0) {
+      S.customRecipes[idx] = Object.assign({}, S.customRecipes[idx], fields, { id: editingRecipeId });
+    }
+  } else {
+    const recipe = Object.assign({ id: 'custom-' + Date.now() }, fields);
+    S.customRecipes.push(recipe);
+    if (!S.selectedMeals.includes(recipe.id)) S.selectedMeals.push(recipe.id);
+  }
+
+  saveState(); closeRecipeModal(); renderRecipes(); renderGrocery();
+}
+
+function resetRecipeEdits(id) {
+  if (!S.recipeEdits || !S.recipeEdits[id]) return;
+  if (!confirm('Reset this recipe back to the original?')) return;
+  delete S.recipeEdits[id];
+  saveState(); renderRecipes(); renderGrocery();
+}
+
+function editCustomRecipe(id) { openRecipeModal(id); }
+
+function deleteCustomRecipe(id) {
+  if (!confirm('Delete this recipe?')) return;
+  S.customRecipes = S.customRecipes.filter(r => r.id !== id);
+  S.selectedMeals = S.selectedMeals.filter(m => m !== id);
+  saveState(); renderRecipes(); renderGrocery();
+}
+
+// ═══════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderWorkouts();
+  renderRecipes();
+  renderGrocery();
+  initMealCheckboxes();
+  applyMealEdits();
+  initMealEditing();
+
+  // Workout checkbox delegation
+  document.addEventListener('change', e => {
+    if (e.target.classList.contains('ex-cb')) {
+      toggleExercise(e.target.dataset.day, parseInt(e.target.dataset.idx));
+    }
+  });
+
+  // Edit cell delegation
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('edit-cell')) startEditCell(e.target);
+  });
+
+  // Modal backdrop close
+  document.getElementById('recipe-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeRecipeModal();
+  });
+});
+</script>
+</body>
+</html>
