@@ -7,6 +7,7 @@ Guidance for Claude Code working in this repository.
 Personal fitness plan tracker. Single-page apps that run entirely in the browser — no build step, no backend, no dependencies. Open the HTML file directly to use.
 
 - `fitness_plan.html` — the main app: weekly meal plan, recipes, workouts, grocery list, low-motivation cards.
+- `sync.py` — local helper that bakes in-browser edits into the HTML and pushes to GitHub. Stdlib-only Python.
 - `tictactoe.html` — standalone game (unrelated to fitness).
 
 ## How to run
@@ -58,5 +59,26 @@ The repo lives at `https://github.com/Fremzies/fitness-plan` (private, owner `Fr
 ## Editing model — important
 
 - Built-in recipes (`RECIPES` const) and built-in workouts/meal-plan HTML are **never mutated at runtime**. User edits live in localStorage overrides (`recipeEdits`, `mealPlanEdits`, `exerciseNameEdits`).
-- Edits do NOT sync across devices automatically — they're per-device localStorage.
-- An export-to-HTML feature (bake overrides back into the source file for cross-device sync via git) is on the backlog but not implemented.
+- Edits sync to GitHub via `sync.py` (see below). Without it running, edits are per-device.
+
+## Cross-device sync (`sync.py`)
+
+In-browser edits travel to GitHub through this loop:
+
+1. The HTML page contains a `<script type="application/json" id="user-data">` block.
+2. The page POSTs the user's localStorage state to `http://localhost:7777/sync` whenever they click **Save Changes**, and on a 3-second debounce after every edit.
+3. `sync.py` writes the payload into the data block, runs `git add`, `git commit`, `git push origin main`.
+4. On another device, after `git pull`, the page's `loadState()` reads the embedded block as a fallback when localStorage is empty — picking up the edits seamlessly.
+
+To use:
+```
+python3 sync.py
+```
+Leave it running while you work. It only ever modifies `fitness_plan.html` and only ever commits with the message `Sync user edits from browser`. If the helper is offline, edits stay in localStorage on that device until you start it again.
+
+What gets synced (`buildSyncPayload` in the HTML):
+- `selectedMeals`, `customRecipes`, `customGroceryItems`
+- `recipeEdits`, `mealPlanEdits`, `exerciseSettings`, `exerciseNameEdits`
+
+What stays per-device (intentionally not synced — it's session state, not data):
+- `mealLog` (today's eaten meals), `workoutLog` (today's done sets), `groceryChecked` (today's shopping checks), `hideChecked` (UI toggle)
