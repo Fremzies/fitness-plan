@@ -8,6 +8,9 @@ node_modules/
 # Claude Code per-machine settings
 .claude/settings.local.json
 
+# sync.py runtime log
+sync.log
+
 # Local backup HTML snapshots
 fitness_plan copy.html
 fitness_plan copy 2.html

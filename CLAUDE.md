@@ -7,7 +7,8 @@ Guidance for Claude Code working in this repository.
 Personal fitness plan tracker. Single-page apps that run entirely in the browser — no build step, no backend, no dependencies. Open the HTML file directly to use.
 
 - `fitness_plan.html` — the main app: weekly meal plan, recipes, workouts, grocery list, low-motivation cards.
-- `sync.py` — local helper that bakes in-browser edits into the HTML and pushes to GitHub. Stdlib-only Python.
+- `sync.py` — local helper that bakes in-browser edits into the HTML and pushes to GitHub. Stdlib-only Python. Auto-exits after 10 min idle.
+- `start.command` — double-click in Finder to start `sync.py` (if not running) and open the page. The user's normal entry point.
 - `tictactoe.html` — standalone game (unrelated to fitness).
 
 ## How to run
@@ -71,10 +72,12 @@ In-browser edits travel to GitHub through this loop:
 4. On another device, after `git pull`, the page's `loadState()` reads the embedded block as a fallback when localStorage is empty — picking up the edits seamlessly.
 
 To use:
-```
-python3 sync.py
-```
-Leave it running while you work. It only ever modifies `fitness_plan.html` and only ever commits with the message `Sync user edits from browser`. If the helper is offline, edits stay in localStorage on that device until you start it again.
+- **Normal flow:** double-click `start.command` in Finder. It launches `sync.py` if not already running, then opens `fitness_plan.html` in the default browser. Safe to run repeatedly.
+- **Manual flow:** `python3 sync.py` from a terminal.
+
+The page sends a heartbeat to `http://localhost:7777/heartbeat` every 60 seconds while the tab is visible. `sync.py` auto-exits after 10 minutes without a heartbeat — closing the tab or walking away reclaims the port. Reopening means running `start.command` again.
+
+`sync.py` only ever modifies `fitness_plan.html` and only ever commits with the message `Sync user edits from browser`. If the helper is offline, edits stay in localStorage until you start it again.
 
 What gets synced (`buildSyncPayload` in the HTML):
 - `selectedMeals`, `customRecipes`, `customGroceryItems`
