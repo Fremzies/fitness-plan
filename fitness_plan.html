@@ -532,7 +532,1281 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 
 <!-- Synced user data — written by sync.py, read by loadState() as fallback when localStorage is empty -->
 <script type="application/json" id="user-data">
-{}
+{
+  "version": 1,
+  "selectedMeals": [
+    "veggie-frittata",
+    "overnight-oats",
+    "sheet-pan-fajitas",
+    "sheet-pan-gnocchi",
+    "sheet-pan-halloumi",
+    "white-bean-pasta",
+    "pasta-e-ceci",
+    "chickpea-salad",
+    "snickerdoodle-protein-balls",
+    "pb-protein-bars",
+    "best-baked-tofu",
+    "vinegar-coleslaw"
+  ],
+  "customRecipes": [],
+  "customGroceryItems": [],
+  "recipeEdits": {
+    "red-lentil-dal": {
+      "name": "Red Lentil Dal",
+      "emoji": "🍲",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "1 cup red lentils + 1 can diced tomatoes + 1 can coconut milk + garlic + ginger + cumin + turmeric + spinach. Simmer 25 min. Serve over rice with a spoonful of Greek yogurt. Freezes perfectly — make a double batch.",
+      "ingredients": [
+        {
+          "name": "Red lentils",
+          "qty": 1.5,
+          "unit": "cups",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Diced tomatoes",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Coconut milk",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Garlic",
+          "qty": 3,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Fresh ginger",
+          "qty": 1,
+          "unit": "piece",
+          "section": "Produce"
+        },
+        {
+          "name": "Baby spinach",
+          "qty": 2,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Brown rice",
+          "qty": 1,
+          "unit": "cup",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Greek yogurt",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "EVOO",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Cumin",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Turmeric",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "sheet-pan-fajitas": {
+      "name": "Sheet Pan Veggie Fajitas",
+      "emoji": "🫑",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Slice 3 bell peppers + 1 zucchini + 1 onion into strips. Toss with olive oil, cumin, smoked paprika, garlic. Roast at 425°F for 25 min. Serve over rice with guac + cheese + tortillas.",
+      "ingredients": [
+        {
+          "name": "Bell peppers",
+          "qty": 3,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Zucchini",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Yellow onion",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Garlic",
+          "qty": 2,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Avocados",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Brown rice",
+          "qty": 1,
+          "unit": "cup",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Small flour tortillas",
+          "qty": 4,
+          "unit": "x",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Shredded cheese",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Cumin",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Smoked paprika",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "white-bean-pasta": {
+      "name": "White Bean & Spinach Pasta",
+      "emoji": "🍝",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Cook pasta. While it cooks: sauté garlic in olive oil, add 1 can white beans + 2 cups spinach + juice of 1 lemon. Toss with pasta + parmesan + splash of pasta water. 20 min total.",
+      "ingredients": [
+        {
+          "name": "Rotini pasta",
+          "qty": 0.5,
+          "unit": "lb",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "White/cannellini beans",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Baby spinach",
+          "qty": 2,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Lemons",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Garlic",
+          "qty": 2,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Parmesan",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "sheet-pan-halloumi": {
+      "name": "Sheet Pan Halloumi & Veggies",
+      "emoji": "🧀",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Slice halloumi into thick pieces. Arrange with zucchini, bell pepper, red onion on a sheet pan. Drizzle with olive oil + oregano. Roast at 400°F for 20 min. Serve over couscous or with pita.",
+      "ingredients": [
+        {
+          "name": "Halloumi",
+          "qty": 1,
+          "unit": "block",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Zucchini",
+          "qty": 2,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Bell peppers",
+          "qty": 2,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Red onion",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Whole wheat pita",
+          "qty": 2,
+          "unit": "x",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Dried oregano",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "sheet-pan-gnocchi": {
+      "name": "Sheet Pan Gnocchi with Tomatoes & White Beans",
+      "emoji": "🍠",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Toss 1 lb gnocchi + 1 pint cherry tomatoes + 1 can white beans + 2 tbsp olive oil + garlic on a sheet pan. Roast 425°F for 25 min. Top with fresh basil + parmesan.",
+      "ingredients": [
+        {
+          "name": "Gnocchi",
+          "qty": 1,
+          "unit": "lb",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Cherry tomatoes",
+          "qty": 1,
+          "unit": "pint",
+          "section": "Produce"
+        },
+        {
+          "name": "White/cannellini beans",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Garlic",
+          "qty": 3,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Fresh basil",
+          "qty": 1,
+          "unit": "bunch",
+          "section": "Produce"
+        },
+        {
+          "name": "Parmesan",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "pesto-pasta": {
+      "name": "Pesto Pasta Primavera",
+      "emoji": "🌿",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Cook pasta, reserve ½ cup pasta water. Toss with 3–4 tbsp jarred pesto + halved cherry tomatoes + zucchini + frozen peas (thawed). Add pasta water to loosen. Finish with parmesan.",
+      "ingredients": [
+        {
+          "name": "Linguine pasta",
+          "qty": 0.5,
+          "unit": "lb",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Pesto",
+          "qty": 4,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Cherry tomatoes",
+          "qty": 1,
+          "unit": "pint",
+          "section": "Produce"
+        },
+        {
+          "name": "Zucchini",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Frozen peas",
+          "qty": 1,
+          "unit": "cup",
+          "section": "Frozen"
+        },
+        {
+          "name": "Parmesan",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        }
+      ]
+    },
+    "pasta-e-ceci": {
+      "name": "Pasta e Ceci (Pasta with Chickpeas)",
+      "emoji": "🫘",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "Sauté garlic + rosemary in olive oil. Add 1 can chickpeas (lightly smash half) + 1 can diced tomatoes. Simmer 10 min. Add cooked pasta + pasta water until creamy. Finish with parmesan.",
+      "ingredients": [
+        {
+          "name": "Angel hair pasta",
+          "qty": 0.5,
+          "unit": "lb",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Chickpeas",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Diced tomatoes",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Garlic",
+          "qty": 3,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Parmesan",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Dried rosemary",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "best-baked-tofu": {
+      "name": "Best Baked Tofu (4 ingredients)",
+      "emoji": "🟫",
+      "category": "dinner",
+      "kcal": 144,
+      "instructions": "Drain tofu and slice into ½-inch thick strips. Press 30 min between paper towels with a heavy book on top. Preheat oven to 400°F, line a baking sheet with parchment. Cut pressed tofu into 1-inch cubes. Toss with tamari first (let absorb 2 min), then olive oil, then arrowroot starch — coat evenly. Spread on the sheet in a single layer. Bake 25–30 min, flipping halfway, until golden and crispy on the outside.",
+      "ingredients": [
+        {
+          "name": "Firm tofu",
+          "qty": 1,
+          "unit": "block (16 oz)",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Tamari (or soy sauce)",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "EVOO",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Arrowroot starch (or cornstarch)",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "chickpea-salad": {
+      "name": "Mediterranean Chickpea Salad",
+      "emoji": "🥗",
+      "category": "lunch",
+      "kcal": 0,
+      "instructions": "2 cans chickpeas + diced cucumber + halved cherry tomatoes + thinly sliced red onion + ½ cup feta + chopped parsley. Dress with olive oil + lemon + salt + oregano. Keeps 4 days.",
+      "ingredients": [
+        {
+          "name": "Chickpeas",
+          "qty": 2,
+          "unit": "cans",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Cucumber",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Cherry tomatoes",
+          "qty": 1,
+          "unit": "pint",
+          "section": "Produce"
+        },
+        {
+          "name": "Red onion",
+          "qty": 0.5,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Feta cheese",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Fresh parsley",
+          "qty": 1,
+          "unit": "bunch",
+          "section": "Produce"
+        },
+        {
+          "name": "Lemons",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 3,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Dried oregano",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "greek-orzo-salad": {
+      "name": "Greek Orzo Salad",
+      "emoji": "🫙",
+      "category": "lunch",
+      "kcal": 0,
+      "instructions": "Cook 1.5 cups orzo, rinse cold. Toss with diced cucumber + cherry tomatoes + kalamata olives + feta + red onion + olive oil + lemon + dried oregano. Gets better as it sits.",
+      "ingredients": [
+        {
+          "name": "Orzo pasta",
+          "qty": 1.5,
+          "unit": "cups",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Cucumber",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Cherry tomatoes",
+          "qty": 1,
+          "unit": "pint",
+          "section": "Produce"
+        },
+        {
+          "name": "Kalamata olives",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Feta cheese",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Red onion",
+          "qty": 0.5,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Lemons",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 3,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Dried oregano",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "white-bean-herb-salad": {
+      "name": "White Bean & Herb Salad",
+      "emoji": "🌿",
+      "category": "lunch",
+      "kcal": 0,
+      "instructions": "2 cans white beans + diced celery + chopped parsley + thinly sliced red onion. Dress with olive oil + lemon + white wine vinegar + salt. Ready in 5 min, no cooking. Lasts all week.",
+      "ingredients": [
+        {
+          "name": "White/cannellini beans",
+          "qty": 2,
+          "unit": "cans",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Celery",
+          "qty": 2,
+          "unit": "stalks",
+          "section": "Produce"
+        },
+        {
+          "name": "Fresh parsley",
+          "qty": 0.5,
+          "unit": "bunch",
+          "section": "Produce"
+        },
+        {
+          "name": "Red onion",
+          "qty": 0.5,
+          "unit": "-",
+          "section": "Produce"
+        },
+        {
+          "name": "Lemons",
+          "qty": 1,
+          "unit": "-",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 3,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "White wine vinegar",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "vinegar-coleslaw": {
+      "name": "Vinegar Coleslaw",
+      "emoji": "🥬",
+      "category": "lunch",
+      "kcal": 100,
+      "instructions": "In a large bowl, toss cabbage and carrots with kosher salt and set aside while you prepare the dressing. In a medium bowl, whisk olive oil, apple cider vinegar, dijon, maple syrup, pepper, garlic, scallion, and celery seed. Stir in the optional toasted seeds and bagel seasoning. Pour dressing over the cabbage mixture and toss to coat. Best after sitting 30+ min.",
+      "ingredients": [
+        {
+          "name": "Purple cabbage (shredded)",
+          "qty": 2,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Green cabbage (shredded)",
+          "qty": 5,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Carrots (shredded)",
+          "qty": 3,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Kosher salt",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "EVOO",
+          "qty": 0.33,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Apple cider vinegar",
+          "qty": 0.33,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Dijon mustard",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Maple syrup",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Black pepper",
+          "qty": 0.75,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Garlic",
+          "qty": 1,
+          "unit": "clove",
+          "section": "Produce"
+        },
+        {
+          "name": "Scallion",
+          "qty": 1,
+          "unit": "bunch",
+          "section": "Produce"
+        },
+        {
+          "name": "Celery seed",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Toasted sesame seeds (optional)",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Poppy seeds (optional)",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Everything bagel seasoning (optional)",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "butternut-pasta-salad": {
+      "name": "Warm Butternut, Apple & Goat Cheese Pasta Salad",
+      "emoji": "🎃",
+      "category": "lunch",
+      "kcal": 0,
+      "instructions": "Preheat oven to 425°F. Quarter and core the Gala apple, cut into ½-inch cubes onto a sheet pan. Trim and peel the squash, halve, scoop seeds, and cut into ½-inch cubes; add to the pan. Strip thyme leaves over the apple and squash, drizzle with olive oil, sprinkle salt and pepper. Toss and spread evenly. Roast ~20 min, stirring halfway, until golden and fork-tender. \nMeanwhile, boil rotini until al dente (8–10 min) and drain. \nWhisk dressing: olive oil, balsamic vinegar, dijon, salt, pepper. Mince garlic and shallot, add to dressing. Toss roasted veg, pasta, and dressing together. Top with crumbled goat cheese and chopped pecans.",
+      "ingredients": [
+        {
+          "name": "Butternut squash",
+          "qty": 0.5,
+          "unit": "small",
+          "section": "Produce"
+        },
+        {
+          "name": "Fresh thyme",
+          "qty": 0.5,
+          "unit": "small pkg",
+          "section": "Produce"
+        },
+        {
+          "name": "Garlic",
+          "qty": 1,
+          "unit": "clove",
+          "section": "Produce"
+        },
+        {
+          "name": "Gala apple",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Rotini pasta",
+          "qty": 5,
+          "unit": "oz",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Pepitas",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Goat cheese log",
+          "qty": 0.5,
+          "unit": "log (4 oz)",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Pecan halves",
+          "qty": 0.33,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Shallot",
+          "qty": 0.5,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Dijon mustard",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Balsamic vinegar",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "EVOO",
+          "qty": 5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Salt",
+          "qty": 1,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Black pepper",
+          "qty": 0.25,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "veggie-frittata": {
+      "name": "Veggie Frittata",
+      "emoji": "🥧",
+      "category": "breakfast",
+      "kcal": 0,
+      "instructions": "6 eggs whisked with ¼ cup feta + 2 cups spinach + roasted veggies. Bake 375°F for 20 min. Cut into 6 slices — lasts all week in the fridge.",
+      "ingredients": [
+        {
+          "name": "Eggs",
+          "qty": 6,
+          "unit": "x",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Feta cheese",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Baby spinach",
+          "qty": 2,
+          "unit": "cups",
+          "section": "Produce"
+        },
+        {
+          "name": "Bell peppers",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Zucchini",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "overnight-oats": {
+      "name": "Overnight Oats",
+      "emoji": "🫙",
+      "category": "breakfast",
+      "kcal": 0,
+      "instructions": "½ cup rolled oats + ⅓ cup Greek yogurt + ¾ cup almond milk + 1 tbsp chia seeds. Mix, jar, refrigerate overnight. Morning: add ½ banana + 1 tbsp nut butter. Make 5 jars Sunday.",
+      "ingredients": [
+        {
+          "name": "Rolled oats",
+          "qty": 2.5,
+          "unit": "cups",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Greek yogurt",
+          "qty": 1.5,
+          "unit": "cups",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Almond milk",
+          "qty": 1,
+          "unit": "carton",
+          "section": "Pantry"
+        },
+        {
+          "name": "Chia seeds",
+          "qty": 5,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Bananas",
+          "qty": 3,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Almond butter",
+          "qty": 1,
+          "unit": "jar",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "black-bean-tacos": {
+      "name": "Black Bean Tacos",
+      "emoji": "🌮",
+      "category": "dinner",
+      "kcal": 0,
+      "instructions": "1 can black beans warmed with garlic, cumin, and smoked paprika. Serve in small flour tortillas with shredded cabbage, avocado slices, shredded cheese, and salsa. Quick, no cooking required.",
+      "ingredients": [
+        {
+          "name": "Black beans",
+          "qty": 1,
+          "unit": "can",
+          "section": "Canned & Dry"
+        },
+        {
+          "name": "Small flour tortillas",
+          "qty": 4,
+          "unit": "x",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Cabbage",
+          "qty": 0.5,
+          "unit": "head",
+          "section": "Produce"
+        },
+        {
+          "name": "Avocados",
+          "qty": 1,
+          "unit": "x",
+          "section": "Produce"
+        },
+        {
+          "name": "Shredded cheese",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Salsa",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Garlic",
+          "qty": 1,
+          "unit": "clove",
+          "section": "Produce"
+        },
+        {
+          "name": "Cumin",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Smoked paprika",
+          "qty": 0.25,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "caprese-pasta-salad": {
+      "name": "Caprese Pasta Salad",
+      "emoji": "🍅",
+      "category": "lunch",
+      "kcal": 0,
+      "instructions": "Cooked pasta (cooled) + halved cherry tomatoes + fresh mozzarella + fresh basil + olive oil + balsamic glaze. No cooking beyond the pasta. Light, summery, great for hot days.",
+      "ingredients": [
+        {
+          "name": "Pasta",
+          "qty": 0.5,
+          "unit": "lb",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Cherry tomatoes",
+          "qty": 1,
+          "unit": "pint",
+          "section": "Produce"
+        },
+        {
+          "name": "Fresh mozzarella",
+          "qty": 0.5,
+          "unit": "lb",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Fresh basil",
+          "qty": 1,
+          "unit": "bunch",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Balsamic glaze",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "pain-aux-bananes": {
+      "name": "Pain aux Bananes de Maman",
+      "emoji": "🍞",
+      "category": "breakfast",
+      "kcal": 0,
+      "instructions": "Preheat oven to 350°F and grease a loaf/muffin pan. \nCream ½ cup shortening. Add in ⅔ cup sugar and 2 eggs; mix well. \nAdd in ½ tsp vanilla. In a separate bowl, sift together 1 ¾ cups flour, ½ tsp salt, ¼ tsp baking soda, and 2 tsp baking powder. \nAlternate adding dry mix and mashed bananas to the creamed mixture, **mixing gently**. Finish with dry ingredients. Fold in ½ cup chocolate chips.\nFor topping (optional): mix 4 tsp sugar + ¼ tsp cinnamon + ½ tsp vanilla + ¼ cup chopped nuts and sprinkle on top. \nPour into the pan. Bake 40–45 min until a toothpick comes out clean. \n\nNote: Make 1½ recipe for 2 small loaves (2½-3 cups bananas).",
+      "ingredients": [
+        {
+          "name": "Shortening",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Sugar",
+          "qty": 0.66,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Eggs (whisked)",
+          "qty": 2,
+          "unit": "x",
+          "section": "Protein & Dairy"
+        },
+        {
+          "name": "Vanilla extract",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "All-purpose flour",
+          "qty": 1.75,
+          "unit": "cups",
+          "section": "Grains & Pasta"
+        },
+        {
+          "name": "Baking soda",
+          "qty": 0.25,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Salt",
+          "qty": 0.5,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Bananas (mashed, very ripe)",
+          "qty": 1.5,
+          "unit": "cup",
+          "section": "Produce"
+        },
+        {
+          "name": "Chocolate chips",
+          "qty": 0.5,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Chopped nuts (optional topping)",
+          "qty": 0.25,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Ground cinnamon",
+          "qty": 0.25,
+          "unit": "tsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Baking powder",
+          "qty": 2,
+          "unit": "tsp",
+          "section": "Pantry"
+        }
+      ]
+    },
+    "provencal-marinade": {
+      "name": "Provençal Marinade",
+      "emoji": "🌿",
+      "category": "sauce",
+      "kcal": 0,
+      "instructions": "Combine all ingredients in a glass dish suitable for marinating. Salt and pepper to taste. Add protein or veggies and let marinate at least 1 hour, ideally overnight.",
+      "ingredients": [
+        {
+          "name": "Dijon mustard",
+          "qty": 0.75,
+          "unit": "cup",
+          "section": "Pantry"
+        },
+        {
+          "name": "Garlic (minced)",
+          "qty": 2,
+          "unit": "cloves",
+          "section": "Produce"
+        },
+        {
+          "name": "Balsamic vinegar",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Lemon juice",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Produce"
+        },
+        {
+          "name": "EVOO",
+          "qty": 2,
+          "unit": "tbsp",
+          "section": "Pantry"
+        },
+        {
+          "name": "Herbes de Provence",
+          "qty": 1,
+          "unit": "tbsp",
+          "section": "Pantry"
+        }
+      ]
+    }
+  },
+  "mealPlanEdits": {
+    "meals-mon-0": {
+      "desc": "Overnight oats: ½ cup oats + ⅓ cup Greek yogurt + ¾ cup almond milk + 1 tbsp chia seeds + ½ banana + 1 tbsp almond butter"
+    },
+    "meals-mon-5": {
+      "desc": "3 squares dark chocolate",
+      "cal": "~135 kcal"
+    }
+  },
+  "exerciseSettings": {
+    "push": [
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "12–15 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "12–15",
+        "weight": "5 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10",
+        "weight": "10–12 lbs each",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "10–12 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10",
+        "weight": "10 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "30 sec",
+        "weight": "BW",
+        "notes": ""
+      }
+    ],
+    "pull": [
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "—",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "—",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "10–12 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "10 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10",
+        "weight": "10 lbs each",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10 each side",
+        "weight": "BW",
+        "notes": ""
+      }
+    ],
+    "legs": [
+      {
+        "sets": "3",
+        "reps": "10–12",
+        "weight": "BW or 10–12 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10 each leg",
+        "weight": "BW",
+        "notes": ""
+      },
+      {
+        "sets": "2",
+        "reps": "15 + 15 pulses",
+        "weight": "15 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "10",
+        "weight": "10 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "3",
+        "reps": "14–20",
+        "weight": "10-15 lbs",
+        "notes": ""
+      },
+      {
+        "sets": "2",
+        "reps": "15 each side",
+        "weight": "BW",
+        "notes": ""
+      }
+    ]
+  },
+  "exerciseNameEdits": {
+    "push-2": "Dumbbell Floor Chest Press",
+    "push-3": "Overhead Dumbbell Tricep Extension"
+  }
+}
 </script>
 
 <script>
