@@ -2396,20 +2396,29 @@ function migrateState(saved) {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const saved = JSON.parse(raw);
-      if (saved && saved.version === 1) { migrateState(saved); return; }
-    }
-    // No localStorage — fall back to data baked into the HTML by sync.py.
-    // This is how edits made on another device flow in after `git pull`.
     const embedded = loadEmbeddedData();
-    if (embedded && embedded.version === 1) { migrateState(embedded); return; }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const saved = raw ? JSON.parse(raw) : null;
+
+    // Compare lastEditAt to decide which copy is more recent. Both sides stamp
+    // it on saveState(), so whichever device touched its data more recently
+    // wins. Important for the phone case: after the Mac syncs new edits,
+    // the embedded block has a newer lastEditAt than the phone's localStorage,
+    // so the phone picks up the fresh data instead of its stale snapshot.
+    const localOK = saved && saved.version === 1;
+    const embeddedOK = embedded && embedded.version === 1;
+    const localTs = localOK ? (saved.lastEditAt || 0) : 0;
+    const embeddedTs = embeddedOK ? (embedded.lastEditAt || 0) : 0;
+
+    if (embeddedOK && embeddedTs > localTs) { migrateState(embedded); return; }
+    if (localOK) { migrateState(saved); return; }
+    if (embeddedOK) { migrateState(embedded); return; }
     S = defaultState();
   } catch(e) { S = defaultState(); }
 }
 
 function saveState() {
+  S.lastEditAt = Date.now();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e) {}
   scheduleAutoSync();
 }
@@ -2434,6 +2443,7 @@ function setSyncStatus(text, kind) {
 function buildSyncPayload() {
   return {
     version: 1,
+    lastEditAt: S.lastEditAt || Date.now(),
     selectedMeals: S.selectedMeals,
     customRecipes: S.customRecipes,
     customGroceryItems: S.customGroceryItems,
