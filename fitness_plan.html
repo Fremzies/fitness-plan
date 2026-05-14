@@ -73,7 +73,7 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 .ex-cell:hover, .ex-cell:focus { border-color: #c4b5fd; background: #f0eeff; outline: none; }
 .edit-input { width: 100%; font-size: .82rem; color: #1e1b3a; text-align: center; border: 1px solid #a78bfa; border-radius: 5px; padding: .2rem .25rem; background: #f8f6ff; outline: none; }
 .tag-new { display: inline-block; background: #d1fae5; color: #065f46; font-size: .62rem; font-weight: 700; padding: .1rem .35rem; border-radius: 4px; margin-left: .3rem; vertical-align: middle; }
-.warmup-note { font-size: .8rem; color: #7c6faa; margin-top: .65rem; padding: .45rem .75rem; border-left: 2px solid #c4b5fd; }
+.warmup-note { font-size: .8rem; color: #7c6faa; margin-bottom: .55rem; padding: .45rem .75rem; border-left: 2px solid #c4b5fd; }
 .ex-notes { grid-column: 2 / -1; font-size: .76rem; color: #7c6faa; padding: .15rem .25rem .35rem; cursor: pointer; border-radius: 5px; line-height: 1.3; }
 .ex-notes:hover { background: #f3f0ff; }
 .ex-notes.empty { color: #c4b5fd; font-style: italic; }
@@ -2646,7 +2646,7 @@ function renderWorkouts() {
       pill.className = 'progress-pill' + (done === total && total > 0 ? ' complete' : '');
     }
 
-    container.innerHTML = displayed.map(id => {
+    container.innerHTML = '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>' + displayed.map(id => {
       const ex = getEffectiveExercise(day, id);
       if (!ex) return '';
       const checked = log.includes(id);
@@ -2662,7 +2662,7 @@ function renderWorkouts() {
         '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="weight">' + esc(ex.weight) + '</span>' +
         '<div class="ex-notes edit-cell' + (notes ? '' : ' empty') + '" data-day="' + day + '" data-id="' + idAttr + '" data-field="notes">' + (notes ? esc(notes) : '+ add notes (form cues, modifications, how it felt)') + '</div>' +
         '</div>';
-    }).join('') + '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>';
+    }).join('');
   }
 }
 
