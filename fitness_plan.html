@@ -2690,7 +2690,6 @@ function startEditCell(el) {
   if (!useTextarea) inp.type = 'text';
   inp.value = current;
   inp.className = useTextarea ? 'meal-edit-textarea' : 'edit-input';
-  if (field === 'sets' || field === 'weight') inp.inputMode = 'decimal';
   if (useTextarea) {
     el.innerHTML = '';
     el.appendChild(inp);
