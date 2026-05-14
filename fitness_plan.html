@@ -2344,15 +2344,33 @@ const RECIPES = [
 const STORAGE_KEY = 'fitnessPlan_v1';
 let S = {};
 
+function defaultExerciseSettings(day) {
+  const out = {};
+  WORKOUTS[day].exercises.forEach((e, i) => {
+    out[day + '-b-' + i] = { sets: e.sets, reps: e.reps, weight: e.weight, notes: '' };
+  });
+  return out;
+}
+function defaultExerciseOrder(day) {
+  return WORKOUTS[day].exercises.map((_, i) => day + '-b-' + i);
+}
+
 function defaultState() {
   return {
     version: 1,
     workoutLog: {},
     exerciseSettings: {
-      push: WORKOUTS.push.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' })),
-      pull: WORKOUTS.pull.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' })),
-      legs: WORKOUTS.legs.exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' }))
+      push: defaultExerciseSettings('push'),
+      pull: defaultExerciseSettings('pull'),
+      legs: defaultExerciseSettings('legs')
     },
+    exerciseOrder: {
+      push: defaultExerciseOrder('push'),
+      pull: defaultExerciseOrder('pull'),
+      legs: defaultExerciseOrder('legs')
+    },
+    exerciseHidden: { push: {}, pull: {}, legs: {} },
+    customExercises: { push: [], pull: [], legs: [] },
     exerciseNameEdits: {},
     mealLog: {},
     selectedMeals: RECIPES.map(r => r.id),
@@ -2378,12 +2396,6 @@ function loadEmbeddedData() {
 
 function migrateState(saved) {
   S = saved;
-  if (!S.exerciseSettings) S.exerciseSettings = {};
-  for (const day of ['push','pull','legs']) {
-    if (!S.exerciseSettings[day]) {
-      S.exerciseSettings[day] = WORKOUTS[day].exercises.map(e => ({ sets: e.sets, reps: e.reps, weight: e.weight, notes: '' }));
-    }
-  }
   if (!S.customRecipes) S.customRecipes = [];
   if (!S.customGroceryItems) S.customGroceryItems = [];
   if (!S.mealLog) S.mealLog = {};
@@ -2393,9 +2405,62 @@ function migrateState(saved) {
   if (!S.workoutLog) S.workoutLog = {};
   if (!S.groceryChecked) S.groceryChecked = {};
   if (!S.selectedMeals) S.selectedMeals = RECIPES.map(r => r.id);
+  if (!S.exerciseSettings) S.exerciseSettings = {};
+  if (!S.exerciseOrder) S.exerciseOrder = {};
+  if (!S.exerciseHidden) S.exerciseHidden = {};
+  if (!S.customExercises) S.customExercises = {};
+
+  // Workout identity migration: switch from index-based to id-based.
+  // Old shape:  exerciseSettings[day] is an array, exerciseNameEdits keys
+  //   are "<day>-<idx>", workoutLog[date][day] is an array of indices.
+  // New shape:  exerciseSettings[day] is a map keyed by exercise id,
+  //   exerciseNameEdits keys are the same ids, workoutLog[date][day] is
+  //   an array of ids. Built-in ids are "<day>-b-<originalIdx>".
+  // Idempotent: re-running on already-migrated data is a no-op.
   for (const day of ['push','pull','legs']) {
-    if (S.exerciseSettings[day]) {
-      S.exerciseSettings[day].forEach(e => { if (e.notes === undefined) e.notes = ''; });
+    // exerciseSettings: array → id-keyed map
+    if (Array.isArray(S.exerciseSettings[day])) {
+      const arr = S.exerciseSettings[day];
+      const map = {};
+      arr.forEach((s, i) => {
+        map[day + '-b-' + i] = {
+          sets: s.sets, reps: s.reps, weight: s.weight, notes: s.notes || ''
+        };
+      });
+      S.exerciseSettings[day] = map;
+    }
+    if (!S.exerciseSettings[day] || typeof S.exerciseSettings[day] !== 'object') {
+      S.exerciseSettings[day] = defaultExerciseSettings(day);
+    }
+    // Backfill notes
+    for (const k of Object.keys(S.exerciseSettings[day])) {
+      if (S.exerciseSettings[day][k].notes === undefined) S.exerciseSettings[day][k].notes = '';
+    }
+    if (!S.exerciseOrder[day]) S.exerciseOrder[day] = defaultExerciseOrder(day);
+    if (!S.exerciseHidden[day]) S.exerciseHidden[day] = {};
+    if (!S.customExercises[day]) S.customExercises[day] = [];
+  }
+
+  // exerciseNameEdits: rekey "<day>-<idx>" → "<day>-b-<idx>"
+  const oldNameKey = /^(push|pull|legs)-(\d+)$/;
+  const rekeyed = {};
+  let anyOld = false;
+  for (const [k, v] of Object.entries(S.exerciseNameEdits)) {
+    const m = k.match(oldNameKey);
+    if (m) { rekeyed[m[1] + '-b-' + m[2]] = v; anyOld = true; }
+    else { rekeyed[k] = v; }
+  }
+  if (anyOld) S.exerciseNameEdits = rekeyed;
+
+  // workoutLog: convert per-day index arrays to id arrays
+  for (const date of Object.keys(S.workoutLog)) {
+    const dayLog = S.workoutLog[date];
+    if (!dayLog || typeof dayLog !== 'object') continue;
+    for (const day of ['push','pull','legs']) {
+      const arr = dayLog[day];
+      if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === 'number') {
+        dayLog[day] = arr.map(i => day + '-b-' + i);
+      }
     }
   }
 }
@@ -2456,7 +2521,10 @@ function buildSyncPayload() {
     recipeEdits: S.recipeEdits,
     mealPlanEdits: S.mealPlanEdits,
     exerciseSettings: S.exerciseSettings,
-    exerciseNameEdits: S.exerciseNameEdits
+    exerciseNameEdits: S.exerciseNameEdits,
+    exerciseOrder: S.exerciseOrder,
+    exerciseHidden: S.exerciseHidden,
+    customExercises: S.customExercises
   };
 }
 
@@ -2520,65 +2588,102 @@ function startHeartbeat() {
 // ═══════════════════════════════════════
 //  WORKOUTS
 // ═══════════════════════════════════════
+const BUILTIN_ID_RE = /^(push|pull|legs)-b-(\d+)$/;
+
+function builtinExerciseId(day, idx) { return day + '-b-' + idx; }
+
+// Resolves an id (built-in or custom) to its full displayed form, applying
+// any settings/name overrides. Returns null if the id no longer matches a
+// known exercise (e.g. a hidden custom exercise that was hard-deleted).
+function getEffectiveExercise(day, id) {
+  if (!id) return null;
+  let base;
+  const m = id.match(BUILTIN_ID_RE);
+  if (m && m[1] === day) {
+    base = WORKOUTS[day].exercises[parseInt(m[2])];
+    if (!base) return null;
+  } else {
+    base = (S.customExercises[day] || []).find(c => c.id === id);
+    if (!base) return null;
+  }
+  const settings = (S.exerciseSettings[day] && S.exerciseSettings[day][id]) || {};
+  const displayName = (S.exerciseNameEdits && S.exerciseNameEdits[id]) || base.name;
+  return {
+    id, name: displayName,
+    sets: settings.sets != null ? settings.sets : base.sets,
+    reps: settings.reps != null ? settings.reps : base.reps,
+    weight: settings.weight != null ? settings.weight : base.weight,
+    notes: settings.notes || '',
+    isBuiltin: !!m, isNew: !!base.isNew
+  };
+}
+
+function getDisplayedExercises(day) {
+  const order = S.exerciseOrder[day] || [];
+  const hidden = S.exerciseHidden[day] || {};
+  return order.filter(id => !hidden[id] && getEffectiveExercise(day, id) != null);
+}
+
+function getHiddenExercises(day) {
+  const hidden = S.exerciseHidden[day] || {};
+  return Object.keys(hidden).filter(id => hidden[id] && getEffectiveExercise(day, id) != null);
+}
+
 function renderWorkouts() {
   const today = getToday();
   for (const day of ['push','pull','legs']) {
     const w = WORKOUTS[day];
     const log = (S.workoutLog[today] || {})[day] || [];
-    const settings = S.exerciseSettings[day];
     const container = document.getElementById('workout-' + day);
     if (!container) continue;
 
-    const done = log.length, total = w.exercises.length;
+    const displayed = getDisplayedExercises(day);
+    const done = displayed.filter(id => log.includes(id)).length;
+    const total = displayed.length;
     const pill = document.getElementById('pill-' + day);
     if (pill) {
       pill.textContent = done === total && total > 0 ? '✓ Done!' : done + '/' + total;
       pill.className = 'progress-pill' + (done === total && total > 0 ? ' complete' : '');
     }
 
-    container.innerHTML = w.exercises.map((ex, i) => {
-      const checked = log.includes(i);
-      const s = settings[i];
-      const nameKey = day + '-' + i;
-      const displayName = (S.exerciseNameEdits && S.exerciseNameEdits[nameKey]) || ex.name;
-      const notes = s.notes || '';
+    container.innerHTML = displayed.map(id => {
+      const ex = getEffectiveExercise(day, id);
+      if (!ex) return '';
+      const checked = log.includes(id);
+      const notes = ex.notes;
+      const idAttr = esc(id);
       return '<div class="cb-row' + (checked ? ' done' : '') + '">' +
         '<label style="display:flex;align-items:center;cursor:pointer">' +
-          '<input type="checkbox" class="ex-cb"' + (checked ? ' checked' : '') + ' data-day="' + day + '" data-idx="' + i + '">' +
+          '<input type="checkbox" class="ex-cb"' + (checked ? ' checked' : '') + ' data-day="' + day + '" data-id="' + idAttr + '">' +
         '</label>' +
-        '<span class="ex-name edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="name">' + esc(displayName) + (ex.isNew ? ' <span class="tag-new">NEW</span>' : '') + '</span>' +
-        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="sets">' + esc(s.sets) + '</span>' +
-        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="reps">' + esc(s.reps) + '</span>' +
-        '<span class="ex-cell edit-cell" data-day="' + day + '" data-idx="' + i + '" data-field="weight">' + esc(s.weight) + '</span>' +
-        '<div class="ex-notes edit-cell' + (notes ? '' : ' empty') + '" data-day="' + day + '" data-idx="' + i + '" data-field="notes">' + (notes ? esc(notes) : '+ add notes (form cues, modifications, how it felt)') + '</div>' +
+        '<span class="ex-name edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="name">' + esc(ex.name) + (ex.isNew ? ' <span class="tag-new">NEW</span>' : '') + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="sets">' + esc(ex.sets) + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="reps">' + esc(ex.reps) + '</span>' +
+        '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="weight">' + esc(ex.weight) + '</span>' +
+        '<div class="ex-notes edit-cell' + (notes ? '' : ' empty') + '" data-day="' + day + '" data-id="' + idAttr + '" data-field="notes">' + (notes ? esc(notes) : '+ add notes (form cues, modifications, how it felt)') + '</div>' +
         '</div>';
     }).join('') + '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>';
   }
 }
 
-function toggleExercise(day, idx) {
+function toggleExercise(day, id) {
   const today = getToday();
   if (!S.workoutLog[today]) S.workoutLog[today] = {};
   if (!S.workoutLog[today][day]) S.workoutLog[today][day] = [];
   const arr = S.workoutLog[today][day];
-  const pos = arr.indexOf(idx);
-  if (pos >= 0) arr.splice(pos, 1); else arr.push(idx);
+  const pos = arr.indexOf(id);
+  if (pos >= 0) arr.splice(pos, 1); else arr.push(id);
   saveState();
   renderWorkouts();
 }
 
 function startEditCell(el) {
   if (el.querySelector('input, textarea')) return;
-  const day = el.dataset.day, idx = parseInt(el.dataset.idx), field = el.dataset.field;
-  const nameKey = day + '-' + idx;
-  let current;
-  if (field === 'name') {
-    current = (S.exerciseNameEdits && S.exerciseNameEdits[nameKey]) || WORKOUTS[day].exercises[idx].name;
-  } else if (field === 'notes') {
-    current = S.exerciseSettings[day][idx].notes || '';
-  } else {
-    current = S.exerciseSettings[day][idx][field];
-  }
+  const day = el.dataset.day, id = el.dataset.id, field = el.dataset.field;
+  if (!id) return;
+  const ex = getEffectiveExercise(day, id);
+  if (!ex) return;
+  const current = field === 'name' ? ex.name : (field === 'notes' ? ex.notes : ex[field]);
 
   const useTextarea = (field === 'notes');
   const inp = document.createElement(useTextarea ? 'textarea' : 'input');
@@ -2599,18 +2704,27 @@ function startEditCell(el) {
   function commit() {
     if (committed) return; committed = true;
     const val = inp.value.trim();
+    if (!S.exerciseSettings[day]) S.exerciseSettings[day] = {};
+    if (!S.exerciseSettings[day][id]) {
+      S.exerciseSettings[day][id] = { sets: ex.sets, reps: ex.reps, weight: ex.weight, notes: '' };
+    }
     if (field === 'name') {
-      const original = WORKOUTS[day].exercises[idx].name;
+      // Resolve the "original" name (built-in: from WORKOUTS const; custom: from
+      // the customExercises entry) so we can detect a revert and drop the override.
+      let original;
+      const m = id.match(BUILTIN_ID_RE);
+      if (m) original = WORKOUTS[day].exercises[parseInt(m[2])].name;
+      else { const c = (S.customExercises[day] || []).find(x => x.id === id); original = c ? c.name : ''; }
       if (!val || val === original) {
-        if (S.exerciseNameEdits) delete S.exerciseNameEdits[nameKey];
+        if (S.exerciseNameEdits) delete S.exerciseNameEdits[id];
       } else {
         if (!S.exerciseNameEdits) S.exerciseNameEdits = {};
-        S.exerciseNameEdits[nameKey] = val;
+        S.exerciseNameEdits[id] = val;
       }
     } else if (field === 'notes') {
-      S.exerciseSettings[day][idx].notes = val;
+      S.exerciseSettings[day][id].notes = val;
     } else {
-      S.exerciseSettings[day][idx][field] = val || current;
+      S.exerciseSettings[day][id][field] = val || current;
     }
     saveState(); renderWorkouts();
   }
@@ -3230,7 +3344,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Workout checkbox delegation
   document.addEventListener('change', e => {
     if (e.target.classList.contains('ex-cb')) {
-      toggleExercise(e.target.dataset.day, parseInt(e.target.dataset.idx));
+      toggleExercise(e.target.dataset.day, e.target.dataset.id);
     }
   });
 
