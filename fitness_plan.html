@@ -61,7 +61,23 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 .workout-title .duration { font-size: .75rem; font-weight: 400; color: #9d8ec7; margin-left: auto; }
 .progress-pill { font-size: .7rem; font-weight: 700; padding: .15rem .55rem; border-radius: 20px; background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; margin-left: .3rem; }
 .progress-pill.complete { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
-.ex-header { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px; gap: .25rem; padding: .25rem .5rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: #9d8ec7; border-bottom: 1px solid #ece9fb; }
+.ex-header { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px 72px; gap: .25rem; padding: .25rem .5rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: #9d8ec7; border-bottom: 1px solid #ece9fb; }
+summary.workout-title { list-style: none; cursor: pointer; user-select: none; padding: .15rem 0; margin-bottom: .35rem; }
+summary.workout-title::-webkit-details-marker { display: none; }
+summary.workout-title::before { content: '▸'; display: inline-block; color: #a78bfa; font-size: .7rem; transition: transform .15s; flex-shrink: 0; }
+details.workout-block[open] > summary.workout-title::before { transform: rotate(90deg); }
+@media (max-width: 500px) {
+  .cb-row { grid-template-columns: 26px 1fr 34px 50px 58px 66px; padding: .3rem .35rem; gap: .15rem; }
+  .ex-header { grid-template-columns: 26px 1fr 34px 50px 58px 66px; padding: .2rem .35rem; }
+  .workout-block { margin-bottom: 1rem; }
+  .warmup-note { font-size: .74rem; padding: .35rem .6rem; margin-bottom: .4rem; }
+  .ex-name { font-size: .82rem; }
+  .ex-cell { font-size: .78rem; padding: .15rem; }
+  .ex-notes { font-size: .73rem; padding: .1rem .2rem .25rem; }
+  .cb-actions { gap: 1px; }
+  .cb-actions button { width: 20px; height: 22px; font-size: .82rem; }
+  .add-exercise-btn { padding: .45rem; font-size: .78rem; margin-top: .3rem; }
+}
 .cb-row { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px 72px; gap: .25rem; align-items: center; padding: .45rem .5rem; border-bottom: 1px solid #f3f0ff; cursor: pointer; transition: background .1s; min-height: 44px; }
 .cb-row:last-child { border-bottom: none; }
 .cb-row:active { background: #f3f0ff; }
@@ -306,21 +322,21 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
   <details open>
     <summary><span class="icon">🏋️</span> Workouts — Push / Pull / Legs</summary>
     <div class="section-body">
-      <div class="workout-block">
-        <div class="workout-title push">Push Day — Shoulders, Chest &amp; Triceps <span id="pill-push" class="progress-pill"></span><span class="duration">~35 min</span></div>
-        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+      <details class="workout-block" data-day="push">
+        <summary class="workout-title push">Push Day — Shoulders, Chest &amp; Triceps <span id="pill-push" class="progress-pill"></span><span class="duration">~35 min</span></summary>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span><span></span></div>
         <div id="workout-push"></div>
-      </div>
-      <div class="workout-block">
-        <div class="workout-title pull">Pull Day — Back &amp; Biceps <span id="pill-pull" class="progress-pill"></span><span class="duration">~35 min</span></div>
-        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+      </details>
+      <details class="workout-block" data-day="pull">
+        <summary class="workout-title pull">Pull Day — Back &amp; Biceps <span id="pill-pull" class="progress-pill"></span><span class="duration">~35 min</span></summary>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span><span></span></div>
         <div id="workout-pull"></div>
-      </div>
-      <div class="workout-block">
-        <div class="workout-title legs">Leg Day — Glutes, Quads &amp; Hamstrings <span id="pill-legs" class="progress-pill"></span><span class="duration">~35 min</span></div>
-        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span></div>
+      </details>
+      <details class="workout-block" data-day="legs">
+        <summary class="workout-title legs">Leg Day — Glutes, Quads &amp; Hamstrings <span id="pill-legs" class="progress-pill"></span><span class="duration">~35 min</span></summary>
+        <div class="ex-header"><span></span><span>Exercise</span><span>Sets</span><span>Reps</span><span>Weight</span><span></span></div>
         <div id="workout-legs"></div>
-      </div>
+      </details>
       <div class="card" style="margin-top:.5rem">
         <h3>When to Add Weight</h3>
         <p>If you complete all reps easily for 2 sessions in a row, go up 2–5 lbs. Never sacrifice form. Tap any Sets/Reps/Weight cell to edit it — your changes save automatically.</p>
@@ -2703,6 +2719,20 @@ function renderWorkouts() {
   }
 }
 
+// Auto-expand only today's workout day on initial load, so on mobile the
+// user lands on the relevant block without scrolling past two collapsed ones.
+// Honored once at startup — after that, user toggles persist via the native
+// <details> open attribute in the live DOM.
+function initWorkoutDayCollapse() {
+  const dayOfWeek = new Date().getDay(); // 0=Sun ... 6=Sat
+  // Mon=push, Wed=pull, Thu=legs (mirrors the day-card schedule in this file).
+  const todayMap = { 1: 'push', 3: 'pull', 4: 'legs' };
+  const todayWorkout = todayMap[dayOfWeek];
+  document.querySelectorAll('details.workout-block').forEach(d => {
+    d.open = (d.dataset.day === todayWorkout);
+  });
+}
+
 function toggleExercise(day, id) {
   const today = getToday();
   if (!S.workoutLog[today]) S.workoutLog[today] = {};
@@ -3434,6 +3464,7 @@ function esc(str) {
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
   renderWorkouts();
+  initWorkoutDayCollapse();
   renderRecipes();
   renderGrocery();
   initMealCheckboxes();
