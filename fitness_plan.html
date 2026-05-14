@@ -62,7 +62,7 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 .progress-pill { font-size: .7rem; font-weight: 700; padding: .15rem .55rem; border-radius: 20px; background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; margin-left: .3rem; }
 .progress-pill.complete { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
 .ex-header { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px; gap: .25rem; padding: .25rem .5rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: #9d8ec7; border-bottom: 1px solid #ece9fb; }
-.cb-row { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px; gap: .25rem; align-items: center; padding: .45rem .5rem; border-bottom: 1px solid #f3f0ff; cursor: pointer; transition: background .1s; min-height: 44px; }
+.cb-row { display: grid; grid-template-columns: 32px 1fr 42px 70px 80px 72px; gap: .25rem; align-items: center; padding: .45rem .5rem; border-bottom: 1px solid #f3f0ff; cursor: pointer; transition: background .1s; min-height: 44px; }
 .cb-row:last-child { border-bottom: none; }
 .cb-row:active { background: #f3f0ff; }
 .cb-row.done { opacity: .45; }
@@ -77,6 +77,19 @@ details[open] > summary { border-bottom: 1px solid #ece9fb; }
 .ex-notes { grid-column: 2 / -1; font-size: .76rem; color: #7c6faa; padding: .15rem .25rem .35rem; cursor: pointer; border-radius: 5px; line-height: 1.3; }
 .ex-notes:hover { background: #f3f0ff; }
 .ex-notes.empty { color: #c4b5fd; font-style: italic; }
+.cb-actions { display: flex; gap: 2px; justify-content: flex-end; align-items: center; }
+.cb-actions button { width: 22px; height: 22px; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; cursor: pointer; font-size: .9rem; line-height: 1; color: #6d28d9; font-family: inherit; }
+.cb-actions button:hover { background: #ede9fe; border-color: #c4b5fd; }
+.cb-actions button:disabled { opacity: .3; cursor: default; pointer-events: none; }
+.add-exercise-btn { width: 100%; padding: .55rem; margin-top: .4rem; background: transparent; border: 1px dashed #c4b5fd; border-radius: 8px; color: #6d28d9; font-size: .82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.add-exercise-btn:hover { background: #f3f0ff; border-style: solid; }
+.hidden-exercises { margin-top: .7rem; }
+.hidden-exercises > summary { font-size: .76rem; color: #9d8ec7; padding: .3rem 0; cursor: pointer; user-select: none; }
+.hidden-exercises > summary:hover { color: #6d28d9; }
+.hidden-exercises .hidden-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .35rem .5rem; border-bottom: 1px solid #f3f0ff; font-size: .82rem; color: #7c6faa; }
+.hidden-exercises .hidden-row:last-child { border-bottom: none; }
+.restore-btn { background: transparent; border: 1px solid #c4b5fd; color: #6d28d9; padding: .25rem .55rem; border-radius: 6px; font-size: .75rem; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.restore-btn:hover { background: #ede9fe; }
 /* ── Meal plan checkboxes ── */
 .section-label { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: #6d28d9; margin-bottom: .75rem; margin-top: 1.25rem; font-weight: 600; }
 .section-label:first-child { margin-top: 0; }
@@ -2646,12 +2659,17 @@ function renderWorkouts() {
       pill.className = 'progress-pill' + (done === total && total > 0 ? ' complete' : '');
     }
 
-    container.innerHTML = '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>' + displayed.map(id => {
+    let html = '<p class="warmup-note">Warm-up: ' + esc(w.warmup) + '</p>';
+    html += displayed.map((id, vIdx) => {
       const ex = getEffectiveExercise(day, id);
       if (!ex) return '';
       const checked = log.includes(id);
       const notes = ex.notes;
       const idAttr = esc(id);
+      const isFirst = vIdx === 0, isLast = vIdx === displayed.length - 1;
+      const removeIcon = ex.isBuiltin ? '−' : '🗑';
+      const removeAction = ex.isBuiltin ? 'hide' : 'delete';
+      const removeTitle = ex.isBuiltin ? 'Hide this exercise (can be restored)' : 'Delete this custom exercise';
       return '<div class="cb-row' + (checked ? ' done' : '') + '">' +
         '<label style="display:flex;align-items:center;cursor:pointer">' +
           '<input type="checkbox" class="ex-cb"' + (checked ? ' checked' : '') + ' data-day="' + day + '" data-id="' + idAttr + '">' +
@@ -2660,9 +2678,28 @@ function renderWorkouts() {
         '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="sets">' + esc(ex.sets) + '</span>' +
         '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="reps">' + esc(ex.reps) + '</span>' +
         '<span class="ex-cell edit-cell" data-day="' + day + '" data-id="' + idAttr + '" data-field="weight">' + esc(ex.weight) + '</span>' +
+        '<div class="cb-actions">' +
+          '<button class="ex-action" data-day="' + day + '" data-id="' + idAttr + '" data-action="up" title="Move up"' + (isFirst ? ' disabled' : '') + '>↑</button>' +
+          '<button class="ex-action" data-day="' + day + '" data-id="' + idAttr + '" data-action="down" title="Move down"' + (isLast ? ' disabled' : '') + '>↓</button>' +
+          '<button class="ex-action" data-day="' + day + '" data-id="' + idAttr + '" data-action="' + removeAction + '" title="' + removeTitle + '">' + removeIcon + '</button>' +
+        '</div>' +
         '<div class="ex-notes edit-cell' + (notes ? '' : ' empty') + '" data-day="' + day + '" data-id="' + idAttr + '" data-field="notes">' + (notes ? esc(notes) : '+ add notes (form cues, modifications, how it felt)') + '</div>' +
         '</div>';
     }).join('');
+    html += '<button class="add-exercise-btn ex-action" data-day="' + day + '" data-action="add" title="Add a new exercise to this day">+ Add exercise</button>';
+    const hidden = getHiddenExercises(day);
+    if (hidden.length > 0) {
+      html += '<details class="hidden-exercises"><summary>Hidden (' + hidden.length + ')</summary>';
+      for (const id of hidden) {
+        const ex = getEffectiveExercise(day, id);
+        if (!ex) continue;
+        html += '<div class="hidden-row"><span>' + esc(ex.name) + '</span>' +
+          '<button class="restore-btn ex-action" data-day="' + day + '" data-id="' + esc(id) + '" data-action="unhide">↺ Restore</button>' +
+          '</div>';
+      }
+      html += '</details>';
+    }
+    container.innerHTML = html;
   }
 }
 
@@ -2673,6 +2710,73 @@ function toggleExercise(day, id) {
   const arr = S.workoutLog[today][day];
   const pos = arr.indexOf(id);
   if (pos >= 0) arr.splice(pos, 1); else arr.push(id);
+  saveState();
+  renderWorkouts();
+}
+
+// Reorder within a day. dir = -1 (up) or +1 (down). Only considers ids that
+// are currently visible (not hidden) — so ↑ swaps with the previous visible
+// exercise even if there are hidden ones between them in the raw order.
+function moveExercise(day, id, dir) {
+  const order = S.exerciseOrder[day];
+  if (!order) return;
+  const visible = getDisplayedExercises(day);
+  const vIdx = visible.indexOf(id);
+  if (vIdx < 0) return;
+  const targetId = visible[vIdx + dir];
+  if (!targetId) return;
+  const a = order.indexOf(id), b = order.indexOf(targetId);
+  if (a < 0 || b < 0) return;
+  order[a] = targetId; order[b] = id;
+  saveState();
+  renderWorkouts();
+}
+
+function hideExercise(day, id) {
+  if (!S.exerciseHidden[day]) S.exerciseHidden[day] = {};
+  S.exerciseHidden[day][id] = true;
+  saveState();
+  renderWorkouts();
+}
+
+function unhideExercise(day, id) {
+  if (S.exerciseHidden[day]) delete S.exerciseHidden[day][id];
+  // When restoring, move the id to the end of the order — keeps the user's
+  // existing curated order intact rather than reshuffling around the
+  // restored entry.
+  const order = S.exerciseOrder[day];
+  if (order) {
+    const i = order.indexOf(id);
+    if (i >= 0) { order.splice(i, 1); order.push(id); }
+    else order.push(id);
+  }
+  saveState();
+  renderWorkouts();
+}
+
+function addCustomExercise(day) {
+  const id = day + '-c-' + Date.now();
+  if (!S.customExercises[day]) S.customExercises[day] = [];
+  S.customExercises[day].push({ id, name: 'New exercise', sets: '3', reps: '10', weight: '—' });
+  if (!S.exerciseSettings[day]) S.exerciseSettings[day] = {};
+  S.exerciseSettings[day][id] = { sets: '3', reps: '10', weight: '—', notes: '' };
+  if (!S.exerciseOrder[day]) S.exerciseOrder[day] = [];
+  S.exerciseOrder[day].push(id);
+  saveState();
+  renderWorkouts();
+  // Open the name field for immediate edit so the user can rename right away.
+  const cell = document.querySelector('.ex-name.edit-cell[data-id="' + id + '"]');
+  if (cell) startEditCell(cell);
+}
+
+function deleteCustomExercise(day, id) {
+  if (!id.includes('-c-')) return; // safety: only custom exercises
+  if (!confirm('Delete this exercise? (Built-in exercises can be hidden instead.)')) return;
+  if (S.customExercises[day]) S.customExercises[day] = S.customExercises[day].filter(c => c.id !== id);
+  if (S.exerciseOrder[day]) S.exerciseOrder[day] = S.exerciseOrder[day].filter(x => x !== id);
+  if (S.exerciseSettings[day]) delete S.exerciseSettings[day][id];
+  if (S.exerciseHidden[day]) delete S.exerciseHidden[day][id];
+  if (S.exerciseNameEdits) delete S.exerciseNameEdits[id];
   saveState();
   renderWorkouts();
 }
@@ -3347,8 +3451,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Edit cell delegation
+  // Edit cell + exercise action delegation
   document.addEventListener('click', e => {
+    const action = e.target.closest('.ex-action');
+    if (action) {
+      const day = action.dataset.day, id = action.dataset.id, kind = action.dataset.action;
+      if (kind === 'up') moveExercise(day, id, -1);
+      else if (kind === 'down') moveExercise(day, id, 1);
+      else if (kind === 'hide') hideExercise(day, id);
+      else if (kind === 'unhide') unhideExercise(day, id);
+      else if (kind === 'delete') deleteCustomExercise(day, id);
+      else if (kind === 'add') addCustomExercise(day);
+      e.stopPropagation();
+      return;
+    }
     if (e.target.classList.contains('edit-cell')) startEditCell(e.target);
   });
 
